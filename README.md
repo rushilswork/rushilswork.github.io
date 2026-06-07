@@ -10,13 +10,12 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 
 - Vanilla HTML / CSS / JS — zero dependencies
 - Playfair Display · Syne · JetBrains Mono (Google Fonts)
-- CSS Scroll Timeline API (progress bar, native + Safari fallback)
+- CSS Scroll Timeline API (progress bar)
 - CSS `clip-path` wipe (theme transition)
 - CSS `perspective` + `transform-style: preserve-3d` (card flip)
 - Canvas API (particle system + cursor trail)
-- IntersectionObserver (scroll reveal + stat counters)
-- CSS custom properties (light/dark theming)
-- Device Motion API (shake, iOS 13+ permission auto-requested)
+- IntersectionObserver (scroll reveal)
+- Device Motion API (shake detection)
 
 ---
 
@@ -25,29 +24,28 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 ### Design
 - Preloader — animated R mark + progress bar
 - Character-by-character hero name reveal
-- Scroll-driven gold progress bar (CSS-native, JS fallback for Safari)
-- Film grain overlay — oversized `−10px` on all sides to prevent edge glitch
-- Ghost section numbers 01–04 — clipped inside section, hidden on mobile
+- Scroll-driven gold progress bar
+- Film grain overlay
+- Ghost section numbers 01–04
 - Active nav highlight on scroll
-- Back to top button (appears after 600px)
-- Light / Dark mode — cinematic diagonal `clip-path` wipe (1.1s sweep in + out)
+- Back to top button
+- Light / Dark mode — cinematic diagonal wipe transition
 - Theme preference persisted via `localStorage`
 
 ### Animations
-- Per-element scroll reveal — skew, blur, slide, rise (varied per element type)
+- Per-element scroll reveal — varied per section
 - Skill tag stagger on reveal
-- Stat counters animate up on scroll into view
+- Stat counters animate on scroll
 - Section label line draws in
-- Hero orb parallax on mouse move (desktop)
+- Hero orb parallax on mouse (desktop)
 - Magnetic contact buttons (desktop)
-- Gold glow sweep line on project card hover
-- 3D card flip — single click/tap, all 3 cards, links inside exempt
+- Gold glow sweep on project card hover
+- 3D card flip on single click / tap
 
 ### Responsive
 - 4 breakpoints: `480px` / `768px` / `1024px` / `1400px`
-- `100svh` hero with iOS browser chrome fix
-- Touch device: native cursor, shake detection
-- `prefers-reduced-motion` respected
+- Hamburger menu with fullscreen overlay on mobile
+- Touch device optimisations throughout
 
 ---
 
@@ -70,7 +68,7 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 | Trigger | Effect |
 |---|---|
 | Triple-tap anywhere | All headings dissolve into gold dust, reform |
-| Shake device | Same dust dissolve (iOS 13+ permission auto-requested) |
+| Shake device | Same dust dissolve effect |
 | Long-press 800ms | Full-screen terminal |
 | Tap any project card | 3D flip revealing "behind the build" |
 | Idle 25 seconds | Particles crumble in from all four edges |
@@ -98,12 +96,9 @@ whoami · skills · projects · experience · contact · awards · hire rushil �
 
 ## Local Development
 
-No build step — open `index.html` directly in any browser.
-
 ```bash
-# Or serve locally with live reload
+# Open index.html directly, or serve locally
 npx serve .
-# Visit http://localhost:3000
 ```
 
 ## Deployment
@@ -123,7 +118,3 @@ Live at: **https://rushilswork.github.io**
 ## License
 
 MIT — use as inspiration, please don't copy directly.
-
----
-
-*Built with care. Designed to be fast, accessible, and memorable.*
