@@ -1206,17 +1206,26 @@
     top: 0; left: 0; right: 0;
     height: 100%;
     z-index: 99996;
-    background: rgba(6,6,6,0.98);
+    background: #060606;
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
     font-family: var(--mono);
-    backdrop-filter: blur(24px);
+    backdrop-filter: none;
     display: flex; flex-direction: column;
     overflow: hidden;
-    /* bottom is not set — JS controls height instead */
+    overscroll-behavior: none;
   }
   #terminal-overlay.open { transform: translateY(0); }
-  body.terminal-open { overflow: hidden !important; position: fixed !important; width: 100% !important; }
+  body.terminal-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    background: #060606;
+  }
+  /* Hide all page content behind terminal — nothing to see through */
+  body.terminal-open > *:not(#terminal-overlay):not(canvas):not(#grain) {
+    visibility: hidden !important;
+  }
   #terminal-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 32px;
@@ -1240,6 +1249,7 @@
     scroll-behavior: smooth;
     max-width: 900px; width: 100%;
     margin: 0 auto;
+    background: #060606;
   }
   #terminal-output::-webkit-scrollbar { width: 3px; }
   #terminal-output::-webkit-scrollbar-thumb { background: rgba(232,184,109,0.3); }
@@ -1255,7 +1265,7 @@
     border-top: 1px solid rgba(232,184,109,0.1);
     flex-shrink: 0;
     max-width: 900px; width: 100%; margin: 0 auto;
-    background: rgba(6,6,6,0.98);
+    background: #060606;
   }
   #terminal-prompt-label { color: var(--accent2); font-size: 14px; white-space: nowrap; user-select: none; }
   #terminal-input {
@@ -2574,7 +2584,8 @@
     _pinTerminal();
     termOverlay.classList.add('open');
     setTimeout(() => {
-      if (termInput) termInput.focus();
+      // Only auto-focus on desktop — on mobile keyboard causes layout shift
+      if (termInput && window.matchMedia('(pointer: fine)').matches) termInput.focus();
       if (termOutput) termOutput.scrollTop = termOutput.scrollHeight;
     }, 420);
     if (termOutput && termOutput.children.length === 0) {
