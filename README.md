@@ -25,59 +25,65 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 ### Design
 - Preloader with animated R mark and progress bar
 - Character-by-character hero name reveal (post-preloader)
-- Custom cursor with contextual labels and glow bloom (desktop)
 - Scroll-driven gold progress bar (CSS-native + JS fallback for Safari)
 - Film grain overlay — oversized to prevent edge glitch
 - Ghost section numbers 01–04 (clipped to section, hidden on mobile)
 - Active nav highlight on scroll
 - Back to top button
-- Hamburger mobile menu with fullscreen overlay
+- Light / Dark mode — cinematic diagonal wipe transition (clip-path sweep)
+- Theme preference persisted via `localStorage`
 
-### Animations
-- Per-element scroll reveal — varied per type (skew, blur, slide, rise)
+### Desktop-only
+- Custom cursor with contextual labels and glow bloom
+- Hero orb parallax (mouse-driven)
+- Magnetic contact buttons
+- Hold `Shift` + move mouse → gold constellation cursor trail
+- Backtick `` ` `` → full-screen terminal
+
+### Mobile-only
+- Hamburger nav menu with fullscreen overlay
+- Shake device → dust dissolve effect (iOS 13+ permission auto-requested)
+- Long-press anywhere 800ms → full-screen terminal
+- Terminal keyboard-aware: `100dvh` shrinks to visible area above keyboard
+- Body scroll fully locked when terminal open, position restored on close
+
+### Both devices
+- Scroll reveal animations — skew, blur, slide, rise per element
 - Skill tag stagger on reveal
-- Stat counter animation (counts up on scroll into view)
-- Section label line draws in on reveal
-- Hero orb parallax (mouse-driven, desktop)
-- Magnetic contact buttons (desktop)
-- Slow-draw gold glow line on project card hover
-- 3D card flip on single click / tap (all 3 cards, no tilt)
-
-### Theme
-- Light / Dark mode toggle
-- Cinematic diagonal wipe transition (1.1s clip-path sweep in + out)
-- All colors transition smoothly behind the wipe
-- Preference persisted via `localStorage`
-
-### Responsive
-- 4 breakpoints: `480px` / `768px` / `1024px` / `1400px`
-- Touch device optimisations — native cursor, shake detection
-- `prefers-reduced-motion` respected
-- `100svh` hero with iOS browser chrome fix
+- Stat counter animation on scroll into view
+- 3D card flip on single click / tap — all 3 project cards
+- Triple-click → all headings dissolve into gold dust and reform
 
 ---
 
 ## Hidden Features
 
+### Desktop
+
 | Trigger | Effect |
 |---|---|
 | Triple-click anywhere | All headings dissolve into gold dust, then reform |
-| Shake device (mobile) | Same dust dissolve effect |
 | Type `rushil` | Hero name crumbles and rebuilds |
-| Type `hireme` | Gold sparks fly to contact + toast + scroll |
-| Idle 25 seconds | Particles crumble in from all four edges |
-| Backtick `` ` `` (desktop) | Full-screen terminal |
+| Type `hireme` | Gold sparks fly to contact + `✦ Let's talk` toast + scroll |
+| Idle 25 seconds | Particles crumble in from all four screen edges |
+| Backtick `` ` `` | Full-screen terminal |
+| Hold `Shift` + move mouse | Gold constellation cursor trail |
 | Click any project card | Card flips in 3D revealing "behind the build" |
-| Hold `Shift` + move mouse | Gold constellation cursor trail (desktop) |
+
+### Mobile
+
+| Trigger | Effect |
+|---|---|
+| Triple-tap anywhere | All headings dissolve into gold dust, then reform |
+| Shake device | Same dust dissolve effect |
+| Long-press 800ms | Full-screen terminal (keyboard-aware, scroll-locked) |
+| Tap any project card | Card flips in 3D revealing "behind the build" |
+| Idle 25 seconds | Particles crumble in from all four screen edges |
 
 ### Terminal Commands
 ```
 whoami · skills · projects · experience · contact · awards · hire rushil · clear · exit
 ```
-
-### Terminal — Mobile Notes
-- Terminal is desktop-only (backtick trigger)
-- On mobile: shake triggers dust dissolve, triple-tap triggers dust dissolve
 
 ---
 
