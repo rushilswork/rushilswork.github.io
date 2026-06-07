@@ -1202,7 +1202,10 @@
 
   /* ── TERMINAL ── */
   #terminal-overlay {
-    position: fixed; inset: 0; z-index: 99996;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 100%;
+    z-index: 99996;
     background: rgba(6,6,6,0.98);
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
@@ -1210,6 +1213,7 @@
     backdrop-filter: blur(24px);
     display: flex; flex-direction: column;
     overflow: hidden;
+    /* bottom is not set — JS controls height instead */
   }
   #terminal-overlay.open { transform: translateY(0); }
   body.terminal-open { overflow: hidden !important; position: fixed !important; width: 100% !important; }
@@ -2567,6 +2571,7 @@
     _savedScrollY = window.scrollY;
     document.body.style.top = `-${_savedScrollY}px`;
     document.body.classList.add('terminal-open');
+    _pinTerminal();
     termOverlay.classList.add('open');
     setTimeout(() => {
       if (termInput) termInput.focus();
@@ -2586,8 +2591,33 @@
     document.body.classList.remove('terminal-open');
     document.body.style.top = '';
     window.scrollTo(0, _savedScrollY);
-    if (termOverlay) termOverlay.classList.remove('open');
+    if (termOverlay) {
+      termOverlay.classList.remove('open');
+      termOverlay.style.top = '';
+      termOverlay.style.height = '';
+    }
     if (termInput) termInput.blur();
+  }
+
+  function _pinTerminal() {
+    if (!termOpen || !termOverlay) return;
+    if (window.visualViewport) {
+      const vv = window.visualViewport;
+      termOverlay.style.top    = vv.offsetTop + 'px';
+      termOverlay.style.left   = vv.offsetLeft + 'px';
+      termOverlay.style.width  = vv.width + 'px';
+      termOverlay.style.height = vv.height + 'px';
+    } else {
+      termOverlay.style.top    = '0px';
+      termOverlay.style.height = window.innerHeight + 'px';
+      termOverlay.style.width  = '100%';
+    }
+  }
+
+  // Keep terminal pinned as keyboard resizes viewport
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', _pinTerminal);
+    window.visualViewport.addEventListener('scroll', _pinTerminal);
   }
 
   if (termClose) termClose.addEventListener('click', closeTerminal);
