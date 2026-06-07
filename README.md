@@ -4,55 +4,50 @@
 
 ## About
 
-Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. Built from scratch as a single-file static site — no frameworks, no build tools, no dependencies. 95KB total.
+Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. Single-file static site — no frameworks, no build tools, no dependencies. 94KB.
 
 ## Stack
 
 - Vanilla HTML / CSS / JS — zero dependencies
 - Playfair Display · Syne · JetBrains Mono (Google Fonts)
-- CSS Scroll Timeline API (progress bar, native)
+- CSS Scroll Timeline API (progress bar, native + Safari fallback)
 - CSS `clip-path` wipe (theme transition)
 - CSS `perspective` + `transform-style: preserve-3d` (card flip)
 - Canvas API (particle system + cursor trail)
-- IntersectionObserver (scroll reveal)
+- IntersectionObserver (scroll reveal + stat counters)
 - CSS custom properties (light/dark theming)
-- Device Motion API (shake detection, iOS 13+ permission handled)
+- Device Motion API (shake, iOS 13+ permission auto-requested)
 
 ---
 
 ## Features
 
 ### Design
-- Preloader with animated R mark and progress bar
-- Character-by-character hero name reveal (post-preloader)
-- Scroll-driven gold progress bar (CSS-native + JS fallback for Safari)
-- Film grain overlay — oversized to prevent edge glitch
-- Ghost section numbers 01–04 (clipped to section, hidden on mobile)
+- Preloader — animated R mark + progress bar
+- Character-by-character hero name reveal
+- Scroll-driven gold progress bar (CSS-native, JS fallback for Safari)
+- Film grain overlay — oversized `−10px` on all sides to prevent edge glitch
+- Ghost section numbers 01–04 — clipped inside section, hidden on mobile
 - Active nav highlight on scroll
-- Back to top button
-- Light / Dark mode — cinematic diagonal wipe transition (clip-path sweep)
+- Back to top button (appears after 600px)
+- Light / Dark mode — cinematic diagonal `clip-path` wipe (1.1s sweep in + out)
 - Theme preference persisted via `localStorage`
 
-### Desktop-only
-- Custom cursor with contextual labels and glow bloom
-- Hero orb parallax (mouse-driven)
-- Magnetic contact buttons
-- Hold `Shift` + move mouse → gold constellation cursor trail
-- Backtick `` ` `` → full-screen terminal
-
-### Mobile-only
-- Hamburger nav menu with fullscreen overlay
-- Shake device → dust dissolve effect (iOS 13+ permission auto-requested)
-- Long-press anywhere 800ms → full-screen terminal
-- Terminal keyboard-aware: `100dvh` shrinks to visible area above keyboard
-- Body scroll fully locked when terminal open, position restored on close
-
-### Both devices
-- Scroll reveal animations — skew, blur, slide, rise per element
+### Animations
+- Per-element scroll reveal — skew, blur, slide, rise (varied per element type)
 - Skill tag stagger on reveal
-- Stat counter animation on scroll into view
-- 3D card flip on single click / tap — all 3 project cards
-- Triple-click → all headings dissolve into gold dust and reform
+- Stat counters animate up on scroll into view
+- Section label line draws in
+- Hero orb parallax on mouse move (desktop)
+- Magnetic contact buttons (desktop)
+- Gold glow sweep line on project card hover
+- 3D card flip — single click/tap, all 3 cards, links inside exempt
+
+### Responsive
+- 4 breakpoints: `480px` / `768px` / `1024px` / `1400px`
+- `100svh` hero with iOS browser chrome fix
+- Touch device: native cursor, shake detection
+- `prefers-reduced-motion` respected
 
 ---
 
@@ -62,23 +57,23 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 
 | Trigger | Effect |
 |---|---|
-| Triple-click anywhere | All headings dissolve into gold dust, then reform |
+| Triple-click anywhere | All headings dissolve into gold dust, reform |
 | Type `rushil` | Hero name crumbles and rebuilds |
-| Type `hireme` | Gold sparks fly to contact + `✦ Let's talk` toast + scroll |
-| Idle 25 seconds | Particles crumble in from all four screen edges |
+| Type `hireme` | Gold sparks fly to contact + `✦ Let's talk` toast |
+| Idle 25 seconds | Particles crumble in from all four edges |
 | Backtick `` ` `` | Full-screen terminal |
 | Hold `Shift` + move mouse | Gold constellation cursor trail |
-| Click any project card | Card flips in 3D revealing "behind the build" |
+| Click any project card | 3D flip revealing "behind the build" |
 
 ### Mobile
 
 | Trigger | Effect |
 |---|---|
-| Triple-tap anywhere | All headings dissolve into gold dust, then reform |
-| Shake device | Same dust dissolve effect |
-| Long-press 800ms | Full-screen terminal (keyboard-aware, scroll-locked) |
-| Tap any project card | Card flips in 3D revealing "behind the build" |
-| Idle 25 seconds | Particles crumble in from all four screen edges |
+| Triple-tap anywhere | All headings dissolve into gold dust, reform |
+| Shake device | Same dust dissolve (iOS 13+ permission auto-requested) |
+| Long-press 800ms | Full-screen terminal |
+| Tap any project card | 3D flip revealing "behind the build" |
+| Idle 25 seconds | Particles crumble in from all four edges |
 
 ### Terminal Commands
 ```
@@ -103,10 +98,10 @@ whoami · skills · projects · experience · contact · awards · hire rushil �
 
 ## Local Development
 
-No build step. Just open `index.html` in a browser.
+No build step — open `index.html` directly in any browser.
 
 ```bash
-# Or serve locally
+# Or serve locally with live reload
 npx serve .
 # Visit http://localhost:3000
 ```
@@ -127,7 +122,7 @@ Live at: **https://rushilswork.github.io**
 
 ## License
 
-MIT — feel free to use as inspiration. Please don't copy directly.
+MIT — use as inspiration, please don't copy directly.
 
 ---
 
