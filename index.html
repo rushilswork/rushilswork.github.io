@@ -35,6 +35,19 @@
     overflow-x: hidden;
   }
 
+  /* ── THEME TRANSITION ── */
+  *:not(#cursor):not(#cursor-dot):not(#cursor-ring):not(canvas):not(#scroll-progress) {
+    transition-property: background-color, color, border-color, box-shadow;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+  }
+  /* Don't interfere with existing transform/opacity transitions */
+  .reveal, .hero-name, .hero-eyebrow, .char, .hero-scroll,
+  .project-card-inner, .marquee-track, .scroll-line,
+  #preloader, #mobile-menu, #terminal-overlay, #trail-canvas {
+    transition-property: opacity, transform, background-color, color, border-color;
+  }
+
   /* ── CURSOR ── */
   #cursor {
     position: fixed; top: 0; left: 0; z-index: 9999;
@@ -344,6 +357,7 @@
   .section-title em { font-style: italic; color: var(--accent); }
 
   /* ── ABOUT ── */
+  #about, #skills, #experience, #projects { position: relative; overflow: hidden; }
   #about {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -867,13 +881,12 @@
   /* ── FEATURED PROJECT ── */
   .project-card.featured {
     grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 48px;
     padding: 56px 48px;
     background: var(--surface);
     position: relative;
     overflow: hidden;
+    opacity: 1 !important;
+    transform: none !important;
   }
   .project-card.featured::before {
     display: none;
@@ -1067,11 +1080,11 @@
     .exp-item { grid-template-columns: 140px 1fr; gap: 24px; }
     .exp-item::before { left: 140px; }
     .projects-grid { grid-template-columns: 1fr; }
-    .project-card.featured { grid-template-columns: 1fr; }
+    .project-card.featured { padding: 32px 24px; }
+    .project-card-front[style] { grid-template-columns: 1fr !important; }
     .skills-grid { grid-template-columns: repeat(2, 1fr); }
     .contact-big { font-size: clamp(40px, 7vw, 80px); }
     footer { padding: 28px 32px; }
-    .ghost-num { font-size: clamp(80px, 12vw, 160px); }
     .section-title { font-size: clamp(32px, 5vw, 56px); }
     .stat-num { font-size: 36px; }
     .featured-setup { margin-top: 24px; }
@@ -1102,7 +1115,6 @@
     /* Sections */
     section { padding: 64px 20px; }
     .section-title { font-size: clamp(28px, 8vw, 44px); }
-    .ghost-num { display: none; }
 
     /* About */
     #about { grid-template-columns: 1fr; gap: 40px; }
@@ -1186,6 +1198,100 @@
     .section-title { font-size: clamp(24px, 8vw, 36px); }
     .about-desc { font-size: 14px; }
   }
+
+  /* ── TERMINAL ── */
+  #terminal-overlay {
+    position: fixed; inset: 0; z-index: 99996;
+    background: rgba(6,6,6,0.98);
+    transform: translateY(100%);
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    font-family: var(--mono);
+    backdrop-filter: blur(24px);
+    display: flex; flex-direction: column;
+  }
+  #terminal-overlay.open { transform: translateY(0); }
+  #terminal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    border-bottom: 1px solid rgba(232,184,109,0.15);
+    flex-shrink: 0;
+  }
+  #terminal-header span { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); }
+  #terminal-close {
+    background: none; border: 1px solid rgba(232,184,109,0.2); color: var(--fg-dim);
+    font-size: 13px; cursor: pointer; padding: 4px 12px;
+    font-family: var(--mono); line-height: 1.4; transition: all 0.2s;
+    letter-spacing: 0.1em;
+  }
+  #terminal-close:hover { color: var(--accent2); border-color: var(--accent2); }
+  #terminal-output {
+    flex: 1; overflow-y: auto; padding: 32px;
+    font-size: 14px; line-height: 2; color: #c8c8c8;
+    scroll-behavior: smooth;
+    max-width: 900px; width: 100%;
+    margin: 0 auto;
+  }
+  #terminal-output::-webkit-scrollbar { width: 3px; }
+  #terminal-output::-webkit-scrollbar-thumb { background: rgba(232,184,109,0.3); }
+  .t-line { margin-bottom: 2px; white-space: pre-wrap; word-break: break-word; }
+  .t-prompt { color: var(--accent2); }
+  .t-cmd { color: #ffffff; font-weight: 500; }
+  .t-out { color: #a0a0a0; }
+  .t-gold { color: var(--accent2); }
+  .t-err { color: #e06c75; }
+  #terminal-input-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 32px;
+    border-top: 1px solid rgba(232,184,109,0.1);
+    flex-shrink: 0;
+    max-width: 900px; width: 100%; margin: 0 auto;
+  }
+  #terminal-prompt-label { color: var(--accent2); font-size: 14px; white-space: nowrap; user-select: none; }
+  #terminal-input {
+    flex: 1; background: none; border: none; outline: none;
+    color: #ffffff; font-family: var(--mono); font-size: 14px;
+    caret-color: var(--accent2); letter-spacing: 0.02em;
+  }
+  #terminal-input::placeholder { color: rgba(255,255,255,0.2); }
+  @media (max-width: 768px) { #terminal-overlay { display: none !important; } }
+
+  /* ── 3D CARD FLIP ── */
+  .project-card:not(.featured) { perspective: 1200px; }
+  .project-card-inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    display: flex; flex-direction: column;
+  }
+  .project-card-inner.flipped { transform: rotateY(180deg); }
+  .project-card-front { backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; flex: 1; display: flex; flex-direction: column; }
+  .project-card-back {
+    position: absolute; inset: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+    background: var(--surface);
+    padding: 32px; display: flex; flex-direction: column; gap: 16px;
+    border: 1px solid rgba(232,184,109,0.15);
+  }
+  .card-back-title {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent2);
+  }
+  .card-back-body { font-size: 13px; line-height: 1.75; color: var(--fg-dim); flex: 1; }
+  .card-back-hint {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(232,184,109,0.35);
+  }
+
+  /* ── CURSOR TRAIL ── */
+  #trail-canvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 99995; pointer-events: none;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  #trail-canvas.active { opacity: 1; }
+  @media (pointer: coarse) { #trail-canvas { display: none; } }
 
   /* ── PRELOADER ── */
   #preloader {
@@ -1329,7 +1435,7 @@
   .ghost-num {
     position: absolute;
     right: -0.02em;
-    top: -0.25em;
+    top: 0;
     font-family: var(--serif);
     font-size: clamp(100px, 16vw, 220px);
     font-weight: 900;
@@ -1340,8 +1446,11 @@
     user-select: none;
     z-index: 0;
     letter-spacing: -0.04em;
+    overflow: hidden;
   }
   [data-theme="light"] .ghost-num { -webkit-text-stroke: 1px rgba(184,130,42,0.07); }
+  @media (max-width: 1024px) { .ghost-num { font-size: clamp(80px, 12vw, 160px); } }
+  @media (max-width: 768px)  { .ghost-num { display: none; } }
 
   /* Section label line grows in */
   .section-label::after {
@@ -1364,6 +1473,22 @@
 </style>
 </head>
 <body>
+
+<!-- TERMINAL -->
+<div id="terminal-overlay" role="dialog" aria-label="Terminal">
+  <div id="terminal-header">
+    <span>rushil@portfolio ~ $</span>
+    <button id="terminal-close" aria-label="Close terminal">✕</button>
+  </div>
+  <div id="terminal-output"></div>
+  <div id="terminal-input-row">
+    <span id="terminal-prompt-label">→</span>
+    <input id="terminal-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type a command..." aria-label="Terminal input" />
+  </div>
+</div>
+
+<!-- TRAIL CANVAS -->
+<canvas id="trail-canvas"></canvas>
 
 <!-- GRAIN -->
 <div id="grain"></div>
@@ -1456,8 +1581,9 @@
 </div>
 
 <!-- ABOUT -->
-<section id="about" style="position:relative;overflow:hidden;">
+<section id="about">
   <div class="ghost-num">01</div>
+
   <div class="about-left">
     <div class="section-label reveal">About</div>
     <h2 class="section-title reveal reveal-delay-1">Building things<br />that <em>matter</em></h2>
@@ -1489,8 +1615,9 @@
 </section>
 
 <!-- SKILLS -->
-<section id="skills" style="position:relative;overflow:hidden;">
+<section id="skills">
   <div class="ghost-num">02</div>
+
   <div class="skills-header">
     <div class="section-label reveal">Expertise</div>
     <h2 class="section-title reveal reveal-delay-1">Technical <em>Skills</em></h2>
@@ -1552,8 +1679,9 @@
 </section>
 
 <!-- EXPERIENCE -->
-<section id="experience" style="position:relative;overflow:hidden;">
+<section id="experience">
   <div class="ghost-num">03</div>
+
   <div class="exp-header">
     <div class="section-label reveal">Experience</div>
     <h2 class="section-title reveal reveal-delay-1">Where I've<br /><em>worked</em></h2>
@@ -1590,8 +1718,9 @@
 </section>
 
 <!-- PROJECTS -->
-<section id="projects" style="position:relative;overflow:hidden;">
+<section id="projects">
   <div class="ghost-num">04</div>
+
   <div class="projects-header">
     <div class="section-label reveal">Projects</div>
     <h2 class="section-title reveal reveal-delay-1">Selected <em>Work</em></h2>
@@ -1599,68 +1728,95 @@
   <div class="projects-grid">
 
     <!-- FEATURED: jobBot -->
-    <div class="project-card featured">
-      <div class="featured-left">
-        <div class="project-badge">Featured · AI Project</div>
-        <div class="project-index">01</div>
-        <div class="project-title">jobBot: Automated Job Discovery Pipeline</div>
-        <p class="project-desc">A local-first AI-powered job discovery engine that searches 9 portals simultaneously, matches roles against your resume with natural language understanding, and tracks your entire application pipeline from discovery to offer.</p>
-        <div class="project-stack" style="margin-top:24px;">
-          <span class="stack-pill">FastAPI</span>
-          <span class="stack-pill">SQLAlchemy</span>
-          <span class="stack-pill">Playwright</span>
-          <span class="stack-pill">React 18</span>
-          <span class="stack-pill">BeautifulSoup</span>
-          <span class="stack-pill">JWT + bcrypt</span>
-          <span class="stack-pill">SSE</span>
-          <span class="stack-pill">SQLite</span>
+    <div class="project-card featured" id="card-01">
+      <div class="project-card-inner">
+        <div class="project-card-front" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;">
+          <div class="featured-left">
+            <div class="project-badge">Featured · AI Project</div>
+            <div class="project-index">01</div>
+            <div class="project-title">jobBot: Automated Job Discovery Pipeline</div>
+            <p class="project-desc">A local-first AI-powered job discovery engine that searches 9 portals simultaneously, matches roles against your resume with natural language understanding, and tracks your entire application pipeline from discovery to offer.</p>
+            <div class="project-stack" style="margin-top:24px;">
+              <span class="stack-pill">FastAPI</span>
+              <span class="stack-pill">SQLAlchemy</span>
+              <span class="stack-pill">Playwright</span>
+              <span class="stack-pill">React 18</span>
+              <span class="stack-pill">BeautifulSoup</span>
+              <span class="stack-pill">JWT + bcrypt</span>
+              <span class="stack-pill">SSE</span>
+              <span class="stack-pill">SQLite</span>
+            </div>
+            <a href="https://github.com/rushilswork/JobBot" target="_blank" rel="noopener" class="project-gh-link">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+              View on GitHub
+            </a>
+          </div>
+          <div class="featured-right">
+            <ul class="featured-features">
+              <li><span>◆</span>Keyword discovery across LinkedIn, Naukri, Indeed, Monster, Glassdoor, Greenhouse, HiringCafe, Instahire, Uplers</li>
+              <li><span>◆</span>AI-powered natural language search over job listings</li>
+              <li><span>◆</span>Resume parsing &amp; skill matching engine</li>
+              <li><span>◆</span>Real-time SSE feed for live scrape updates</li>
+              <li><span>◆</span>Pipeline tracking: New → Reviewed → Applied → Skipped</li>
+              <li><span>◆</span>JWT auth with bcrypt, httpOnly cookies</li>
+            </ul>
+            <div class="featured-setup">
+              <div class="featured-setup-label">Quick Start</div>
+              <code>
+                <em>pip install -r requirements.txt</em><br/>
+                playwright install chromium<br/>
+                python main.py dashboard<br/>
+                <em>→ localhost:8000</em>
+              </code>
+            </div>
+          </div>
         </div>
-        <a href="https://github.com/rushilswork/JobBot" target="_blank" rel="noopener" class="project-gh-link">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-          View on GitHub
-        </a>
-      </div>
-      <div class="featured-right">
-        <ul class="featured-features">
-          <li><span>◆</span>Keyword discovery across LinkedIn, Naukri, Indeed, Monster, Glassdoor, Greenhouse, HiringCafe, Instahire, Uplers</li>
-          <li><span>◆</span>AI-powered natural language search over job listings</li>
-          <li><span>◆</span>Resume parsing &amp; skill matching engine</li>
-          <li><span>◆</span>Real-time SSE feed for live scrape updates</li>
-          <li><span>◆</span>Pipeline tracking: New → Reviewed → Applied → Skipped</li>
-          <li><span>◆</span>JWT auth with bcrypt, httpOnly cookies</li>
-        </ul>
-        <div class="featured-setup">
-          <div class="featured-setup-label">Quick Start</div>
-          <code>
-            <em>pip install -r requirements.txt</em><br/>
-            playwright install chromium<br/>
-            python main.py dashboard<br/>
-            <em>→ localhost:8000</em>
-          </code>
+        <div class="project-card-back">
+          <div class="card-back-title">Behind the build</div>
+          <p class="card-back-body">jobBot started as a personal problem: job searching across 9 different portals manually was exhausting. Built a local-first pipeline that scrapes them all simultaneously, parses your resume, matches roles by skill relevance, and tracks your entire application lifecycle. AI-powered natural language search means you can query listings conversationally rather than by keyword. JWT auth and httpOnly cookies keep everything secure locally.</p>
+          <div class="card-back-hint">Double-click to flip back</div>
         </div>
       </div>
     </div>
 
     <!-- Air Pollution -->
-    <div class="project-card reveal">
-      <div class="project-index">02</div>
-      <div class="project-title">Air Pollution Data Visualization</div>
-      <p class="project-desc">Interactive tool processing 50+ air pollution records with real-time geolocation tracking, dynamic mapping, and animated visualizations for exploring complex environmental datasets.</p>
-      <a href="https://github.com/rushilswork/HyAir-Data-Visualization-Tool" target="_blank" rel="noopener" class="project-gh-link">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-        View on GitHub
-      </a>
+    <div class="project-card reveal" id="card-02">
+      <div class="project-card-inner">
+        <div class="project-card-front">
+          <div class="project-index">02</div>
+          <div class="project-title">Air Pollution Data Visualization</div>
+          <p class="project-desc">Interactive tool processing 50+ air pollution records with real-time geolocation tracking, dynamic mapping, and animated visualizations for exploring complex environmental datasets.</p>
+          <a href="https://github.com/rushilswork/HyAir-Data-Visualization-Tool" target="_blank" rel="noopener" class="project-gh-link">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="project-card-back">
+          <div class="card-back-title">Behind the build</div>
+          <p class="card-back-body">Built to explore real-time environmental data through interactive maps and animated charts. Integrated 5+ APIs including Google Maps and OpenStreetMap for geolocation accuracy. Designed for intuitive exploration of complex datasets with zero prior context needed.</p>
+          <div class="card-back-hint">Double-click to flip back</div>
+        </div>
+      </div>
     </div>
 
     <!-- Bandwidth Speed Test -->
-    <div class="project-card reveal reveal-delay-1">
-      <div class="project-index">03</div>
-      <div class="project-title">Bandwidth Speed Test</div>
-      <p class="project-desc">Full-stack internet speed test with one-click UX, real-time download/upload measurement, and historical trend visualization for personalized performance monitoring.</p>
-      <a href="https://github.com/rushilswork/The-Global-Broadband-Speed-Test" target="_blank" rel="noopener" class="project-gh-link">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-        View on GitHub
-      </a>
+    <div class="project-card reveal reveal-delay-1" id="card-03">
+      <div class="project-card-inner">
+        <div class="project-card-front">
+          <div class="project-index">03</div>
+          <div class="project-title">Bandwidth Speed Test</div>
+          <p class="project-desc">Full-stack internet speed test with one-click UX, real-time download/upload measurement, and historical trend visualization for personalized performance monitoring.</p>
+          <a href="https://github.com/rushilswork/The-Global-Broadband-Speed-Test" target="_blank" rel="noopener" class="project-gh-link">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="project-card-back">
+          <div class="card-back-title">Behind the build</div>
+          <p class="card-back-body">A full-stack speed test measuring real download/upload performance with sub-second granularity. Historical data stored in MongoDB gives users a personalised view of their connection over time. One-click UX was the design constraint: everything else had to follow.</p>
+          <div class="card-back-hint">Double-click to flip back</div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -1790,11 +1946,48 @@
   updateThemeIcon(savedTheme);
 
   if (toggleBtn) {
+    let themeAnimating = false;
     toggleBtn.addEventListener('click', () => {
+      if (themeAnimating) return;
+      themeAnimating = true;
       const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      try { localStorage.setItem('rp-theme', next); } catch(e) {}
-      updateThemeIcon(next);
+      const isDarkToLight = next === 'light';
+
+      // Create wipe overlay — diagonal sweep from top-left to bottom-right
+      const wipe = document.createElement('div');
+      wipe.style.cssText = `
+        position: fixed; inset: 0; z-index: 99993; pointer-events: none;
+        background: ${isDarkToLight ? '#f5f2ed' : '#0c0c0c'};
+        clip-path: polygon(-5% -5%, -5% -5%, -5% 105%, -5% 105%);
+        transition: clip-path 1.1s cubic-bezier(0.76, 0, 0.24, 1);
+      `;
+      document.body.appendChild(wipe);
+
+      // Phase 1 — sweep IN (covers whole screen)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          wipe.style.clipPath = 'polygon(-5% -5%, 105% -5%, 105% 105%, -5% 105%)';
+        });
+      });
+
+      // Mid-point — switch theme while covered
+      setTimeout(() => {
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('rp-theme', next); } catch(e) {}
+        updateThemeIcon(next);
+      }, 1080);
+
+      // Phase 2 — sweep OUT (reveals new theme)
+      setTimeout(() => {
+        wipe.style.transition = 'clip-path 1.1s cubic-bezier(0.76, 0, 0.24, 1)';
+        wipe.style.clipPath = 'polygon(105% -5%, 105% -5%, 105% 105%, 105% 105%)';
+      }, 1140);
+
+      // Clean up
+      setTimeout(() => {
+        wipe.remove();
+        themeAnimating = false;
+      }, 2400);
     });
   }
 
@@ -1971,19 +2164,475 @@
     });
   });
 
-  /* ── LOGO EASTER EGG ── */
-  let logoClicks = 0, logoTimer;
-  const logoEl = document.querySelector('.nav-logo');
-  if (logoEl) {
-    logoEl.addEventListener('click', () => {
-      logoClicks++;
-      clearTimeout(logoTimer);
-      logoTimer = setTimeout(() => { logoClicks = 0; }, 1200);
-      if (logoClicks >= 5) {
-        logoClicks = 0;
-        document.body.style.transition = 'filter 0.4s';
-        document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-        setTimeout(() => { document.body.style.filter = ''; }, 1400);
+  /* ══════════════════════════════════════════
+     HIDDEN FEATURES — PARTICLE ENGINE
+     ══════════════════════════════════════════ */
+
+  /* ── CANVAS ── */
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:99997;pointer-events:none;';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+  let particles = [];
+  let rafId = null;
+
+  function particleLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => p.life > 0);
+    for (const p of particles) {
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.vy += p.gravity;
+      p.vx *= 0.97;
+      p.wobble += 0.1;
+      p.x += Math.sin(p.wobble) * 0.3;
+      p.life -= p.decay;
+      const r = Math.max(0.1, p.size * p.life);
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life * p.life);
+      ctx.fillStyle = p.color;
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    if (particles.length > 0) rafId = requestAnimationFrame(particleLoop);
+    else { ctx.clearRect(0, 0, canvas.width, canvas.height); rafId = null; }
+  }
+
+  function startLoop() { if (!rafId) rafId = requestAnimationFrame(particleLoop); }
+
+  function spawnP(x, y, color, vx, vy, size, decay, gravity) {
+    particles.push({ x, y, vx: vx||0, vy: vy||0, life:1,
+      size: size||(1.5+Math.random()*2),
+      decay: decay||(0.008+Math.random()*0.01),
+      gravity: gravity !== undefined ? gravity : (0.08+Math.random()*0.1),
+      color: color||'#e8b86d',
+      wobble: Math.random()*Math.PI*2 });
+  }
+
+  function burst(x, y, count, colors) {
+    count = count||60; colors = colors||['#e8b86d','#d4c5a9','#f0ece4'];
+    for (let i=0;i<count;i++) {
+      const a = (i/count)*Math.PI*2 + Math.random()*0.3;
+      const s = 1.5+Math.random()*7;
+      spawnP(x+(Math.random()-.5)*8, y+(Math.random()-.5)*8,
+        colors[Math.floor(Math.random()*colors.length)],
+        Math.cos(a)*s, Math.sin(a)*s-2,
+        1.5+Math.random()*2.5, 0.007+Math.random()*0.01, 0.1);
+    }
+    startLoop();
+  }
+
+  /* ── DUST DISSOLVE ── */
+  function dustDissolve(el, onReform) {
+    if (!el || el.dataset.dusting) return;
+    el.dataset.dusting = '1';
+    const rect = el.getBoundingClientRect();
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const colors = isDark
+      ? ['#e8b86d','#f0ece4','#d4c5a9','#c9a85c','#fff']
+      : ['#b8822a','#1a1814','#6b5c42','#8b6914','#333'];
+
+    // Fade out element
+    const prevTransition = el.style.transition;
+    el.style.transition = 'opacity 0.5s ease';
+    el.style.opacity = '0';
+
+    // Spawn dust from element area
+    const density = Math.min(180, Math.floor(rect.width * rect.height / 60));
+    for (let i=0;i<density;i++) {
+      const px = rect.left + Math.random()*rect.width;
+      const py = rect.top  + Math.random()*rect.height;
+      const angle = -Math.PI*0.5 + (Math.random()-.5)*Math.PI*1.6;
+      const speed = 0.4 + Math.random()*4;
+      spawnP(px, py,
+        colors[Math.floor(Math.random()*colors.length)],
+        Math.cos(angle)*speed, Math.sin(angle)*speed,
+        0.8+Math.random()*2,
+        0.003+Math.random()*0.006, // slow decay = long dust
+        0.03+Math.random()*0.05
+      );
+    }
+    startLoop();
+
+    // Reform
+    setTimeout(() => {
+      el.style.transition = 'opacity 0.9s ease';
+      el.style.opacity = '1';
+      delete el.dataset.dusting;
+      setTimeout(() => { el.style.transition = prevTransition; }, 900);
+      if (onReform) onReform();
+    }, 2800);
+  }
+
+  /* ── TRIPLE-CLICK ANYWHERE → ALL TITLES DISSOLVE ── */
+  let clickCount = 0, clickTimer;
+  document.addEventListener('click', () => {
+    clickCount++;
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => { clickCount = 0; }, 600);
+    if (clickCount >= 3) { clickCount = 0; triggerKonami(); }
+  });
+
+  /* ── SHAKE (mobile) → ALL TITLES DISSOLVE ── */
+  let lastShake = 0, lastX = 0, lastY = 0, lastZ = 0;
+  if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', e => {
+      const a = e.accelerationIncludingGravity;
+      if (!a) return;
+      const dx = Math.abs(a.x - lastX);
+      const dy = Math.abs(a.y - lastY);
+      const dz = Math.abs(a.z - lastZ);
+      lastX = a.x; lastY = a.y; lastZ = a.z;
+      const now = Date.now();
+      if ((dx + dy + dz) > 30 && now - lastShake > 3000) {
+        lastShake = now;
+        triggerKonami();
+      }
+    });
+  }
+
+  let typedBuffer = '';
+
+  document.addEventListener('keydown', e => {
+    // Typed words
+    if (e.key.length === 1) {
+      typedBuffer = (typedBuffer + e.key.toLowerCase()).slice(-12);
+      if (typedBuffer.endsWith('rushil')) {
+        typedBuffer='';
+        const n=$('hero-name'); if(n) dustDissolve(n, initHeroChars);
+      }
+      if (typedBuffer.endsWith('hireme') || typedBuffer.endsWith('hire me')) {
+        typedBuffer=''; triggerHireMe();
+      }
+    }
+  });
+
+  function triggerKonami() {
+    const sels = ['.hero-name','.section-title','.exp-role','.project-title','.contact-big','.stat-num'];
+    let delay = 0;
+    sels.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        setTimeout(() => dustDissolve(el), delay);
+        delay += 260;
+      });
+    });
+    for (let i=0;i<150;i++) {
+      setTimeout(() => {
+        spawnP(Math.random()*window.innerWidth, -5,
+          ['#e8b86d','#d4c5a9','#f0ece4'][Math.floor(Math.random()*3)],
+          (Math.random()-.5)*1.5, 2+Math.random()*3, 1.5+Math.random()*2, 0.005, 0.05);
+        startLoop();
+      }, i*40);
+    }
+  }
+
+  /* ── "HIRE ME" ── */
+  function triggerHireMe() {
+    const toast = document.createElement('div');
+    toast.textContent = '✦  Let\'s talk';
+    toast.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);
+      font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;
+      color:#e8b86d;padding:14px 32px;border:1px solid rgba(232,184,109,0.5);background:rgba(12,12,12,0.92);
+      backdrop-filter:blur(12px);z-index:99999;opacity:0;transition:opacity 0.5s,transform 0.5s;
+      box-shadow:0 0 24px rgba(232,184,109,0.2);`;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity='1'; toast.style.transform='translateX(-50%) translateY(0)'; });
+
+    for (let i=0;i<80;i++) {
+      setTimeout(() => {
+        const sx=Math.random()*window.innerWidth, sy=Math.random()*window.innerHeight*0.7;
+        const contact=document.querySelector('#contact');
+        const tx=contact ? contact.getBoundingClientRect().left+contact.getBoundingClientRect().width/2 : window.innerWidth/2;
+        const ty=contact ? contact.getBoundingClientRect().top : window.innerHeight*0.8;
+        spawnP(sx,sy,'#e8b86d',(tx-sx)/50+(Math.random()-.5)*2,(ty-sy)/50+(Math.random()-.5)*2,2+Math.random()*2,0.014,-0.02);
+        startLoop();
+      }, i*18);
+    }
+    setTimeout(() => {
+      const c=document.querySelector('#contact');
+      if(c) c.scrollIntoView({behavior:'smooth',block:'center'});
+      burst(window.innerWidth/2, window.innerHeight*0.6, 50);
+    }, 1500);
+    setTimeout(() => {
+      toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(-12px)';
+      setTimeout(()=>toast.remove(),500);
+    }, 3500);
+  }
+
+  /* ── IDLE 45s → EDGE CRUMBLE ── */
+  let idleTimer, idleActive=false;
+  function resetIdle() {
+    clearTimeout(idleTimer);
+    if (idleActive) { idleActive=false; particles=[]; ctx.clearRect(0,0,canvas.width,canvas.height); }
+    idleTimer = setTimeout(() => { idleActive=true; triggerIdleCrumble(); }, 25000);
+  }
+  ['mousemove','keydown','scroll','click','touchstart'].forEach(ev =>
+    window.addEventListener(ev, resetIdle, {passive:true})
+  );
+  resetIdle();
+
+  function triggerIdleCrumble() {
+    const W=window.innerWidth, H=window.innerHeight;
+    for(let i=0;i<200;i++) {
+      setTimeout(()=>{
+        if(!idleActive) return;
+        const edge=i%4; let x,y,vx,vy;
+        if(edge===0)      {x=Math.random()*W;y=0;  vx=(Math.random()-.5)*2;vy=1+Math.random()*2;}
+        else if(edge===1) {x=W;y=Math.random()*H;  vx=-(1+Math.random()*2);vy=(Math.random()-.5)*2;}
+        else if(edge===2) {x=Math.random()*W;y=H;  vx=(Math.random()-.5)*2;vy=-(1+Math.random()*2);}
+        else              {x=0;y=Math.random()*H;  vx=1+Math.random()*2;   vy=(Math.random()-.5)*2;}
+        spawnP(x,y,['#e8b86d','#d4c5a9','rgba(240,236,228,0.7)'][Math.floor(Math.random()*3)],vx,vy,1.5+Math.random()*2.5,0.003,0);
+        startLoop();
+      }, i*80);
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     FEATURE A — TERMINAL
+     ══════════════════════════════════════════ */
+  const termOverlay = $('terminal-overlay');
+  const termOutput  = $('terminal-output');
+  const termInput   = $('terminal-input');
+  const termClose   = $('terminal-close');
+  let termOpen = false;
+
+  const COMMANDS = {
+    help: () => [
+      '<span class="t-gold">Available commands:</span>',
+      '  <span class="t-gold">whoami</span>       — about Rushil',
+      '  <span class="t-gold">skills</span>       — technical skills',
+      '  <span class="t-gold">projects</span>     — projects built',
+      '  <span class="t-gold">experience</span>   — work history',
+      '  <span class="t-gold">contact</span>      — get in touch',
+      '  <span class="t-gold">awards</span>       — recognition',
+      '  <span class="t-gold">hire rushil</span>  — make it official',
+      '  <span class="t-gold">clear</span>        — clear terminal',
+      '  <span class="t-gold">exit</span>         — close terminal',
+    ],
+    whoami: () => [
+      '<span class="t-gold">Rushil Pillamari</span>',
+      'Software Engineer · Hyderabad, India',
+      'Associate SWE @ insightsoftware · 2+ years',
+      'Building complex systems, intelligent pipelines, full stack products.',
+      'Available for the right opportunity.',
+    ],
+    skills: () => [
+      '<span class="t-gold">Languages:</span>   C++, C, Java, Python, C# (.NET), JS, TypeScript',
+      '<span class="t-gold">Frameworks:</span>  React, Node, Express, ASP.NET MVC',
+      '<span class="t-gold">Databases:</span>   SQL Server, MongoDB',
+      '<span class="t-gold">DevOps:</span>      Git, Azure DevOps, CI/CD, Linux, Jira',
+      '<span class="t-gold">Concepts:</span>    OOP, DSA, System Design, Multithreading, REST',
+    ],
+    projects: () => [
+      '<span class="t-gold">01 · jobBot</span>       AI-powered job discovery pipeline · 9 portals',
+      '<span class="t-gold">02 · HyAir</span>        Air pollution data visualization tool',
+      '<span class="t-gold">03 · SpeedTest</span>    Global broadband speed test · Full stack',
+      '',
+      'github.com/rushilswork',
+    ],
+    experience: () => [
+      '<span class="t-gold">Associate Software Engineer</span>  insightsoftware · Jul 2024 – Present',
+      '  → Enterprise SSO, OLAP optimization, 50+ critical issues resolved',
+      '<span class="t-gold">Software Engineering Intern</span>   insightsoftware · Feb 2024 – Jun 2024',
+      '  → Filter search, export engine, enterprise reporting',
+    ],
+    contact: () => [
+      '<span class="t-gold">Email:</span>    rushilswork@gmail.com',
+      '<span class="t-gold">LinkedIn:</span> linkedin.com/in/rushilpillamari',
+      '<span class="t-gold">GitHub:</span>   github.com/rushilswork',
+      '<span class="t-gold">Location:</span> Hyderabad, India',
+    ],
+    awards: () => [
+      '<span class="t-gold">◆</span> ISW Kudos Award — Automated production-wide code signing',
+      '<span class="t-gold">◆</span> High Performance Recognition — 5+ times',
+      '<span class="t-gold">◆</span> Merit Scholarship — INR 1,00,000',
+      '<span class="t-gold">◆</span> AIR 1 — National SIP Abacus (3,100 participants)',
+    ],
+    'hire rushil': () => {
+      setTimeout(() => triggerHireMe(), 400);
+      return ['<span class="t-gold">Initiating contact sequence...</span>', 'Redirecting to contact section ✦'];
+    },
+    clear: () => { termOutput.innerHTML = ''; return []; },
+    exit:  () => { setTimeout(closeTerminal, 200); return ['Goodbye.'];  },
+  };
+
+  function termPrint(lines) {
+    lines.forEach((l, i) => {
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.className = 't-line t-out';
+        div.innerHTML = l;
+        termOutput.appendChild(div);
+        termOutput.scrollTop = termOutput.scrollHeight;
+      }, i * 28);
+    });
+  }
+
+  function termRun(raw) {
+    const cmd = raw.trim().toLowerCase();
+    // Echo command
+    const echo = document.createElement('div');
+    echo.className = 't-line';
+    echo.innerHTML = `<span class="t-prompt">→ </span><span class="t-cmd">${raw}</span>`;
+    termOutput.appendChild(echo);
+
+    if (!cmd) return;
+    if (COMMANDS[cmd]) {
+      const out = COMMANDS[cmd]();
+      if (out && out.length) termPrint(out);
+    } else {
+      termPrint([`<span class="t-err">command not found: ${raw}</span>`, 'Type <span class="t-gold">help</span> for available commands.']);
+    }
+    termOutput.scrollTop = termOutput.scrollHeight;
+  }
+
+  function openTerminal() {
+    if (!termOverlay || window.matchMedia('(max-width: 768px)').matches) return;
+    termOpen = true;
+    termOverlay.classList.add('open');
+    setTimeout(() => { if (termInput) termInput.focus(); }, 420);
+    if (termOutput.children.length === 0) {
+      termPrint([
+        '<span class="t-gold">Welcome to Rushil\'s portfolio terminal.</span>',
+        'Type <span class="t-gold">help</span> to see available commands.',
+        '',
+      ]);
+    }
+  }
+
+  function closeTerminal() {
+    termOpen = false;
+    if (termOverlay) termOverlay.classList.remove('open');
+  }
+
+  if (termClose) termClose.addEventListener('click', closeTerminal);
+  if (termInput) {
+    termInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const val = termInput.value;
+        termInput.value = '';
+        termRun(val);
+      }
+      if (e.key === 'Escape') closeTerminal();
+    });
+  }
+
+  // Backtick opens terminal (desktop only)
+  document.addEventListener('keydown', e => {
+    if (e.key === '`' && !window.matchMedia('(max-width: 768px)').matches) {
+      e.preventDefault();
+      termOpen ? closeTerminal() : openTerminal();
+    }
+    if (e.key === 'Escape' && termOpen) closeTerminal();
+  });
+
+  /* ══════════════════════════════════════════
+     FEATURE C — 3D CARD FLIP
+     ══════════════════════════════════════════ */
+  $$('.project-card').forEach(card => {
+    let lastTap = 0;
+    const inner = card.querySelector('.project-card-inner');
+    if (!inner) return;
+
+    function doFlip() {
+      inner.classList.toggle('flipped');
+    }
+
+    // Desktop: double-click
+    card.addEventListener('dblclick', e => {
+      e.preventDefault();
+      doFlip();
+    });
+
+    // Mobile: double-tap
+    card.addEventListener('touchend', e => {
+      const now = Date.now();
+      if (now - lastTap < 350) { e.preventDefault(); doFlip(); }
+      lastTap = now;
+    }, { passive: false });
+  });
+
+  /* ══════════════════════════════════════════
+     FEATURE D — CURSOR TRAIL CONSTELLATION
+     ══════════════════════════════════════════ */
+  const trailCanvas = $('trail-canvas');
+  let trailCtx, trailActive = false, trailPoints = [], trailRaf = null;
+
+  if (trailCanvas && window.matchMedia('(pointer: fine)').matches) {
+    trailCanvas.width  = window.innerWidth;
+    trailCanvas.height = window.innerHeight;
+    trailCtx = trailCanvas.getContext('2d');
+    window.addEventListener('resize', () => {
+      trailCanvas.width  = window.innerWidth;
+      trailCanvas.height = window.innerHeight;
+    });
+
+    function drawTrail() {
+      trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+      // Fade old points
+      trailPoints = trailPoints.filter(p => { p.life -= 0.018; return p.life > 0; });
+
+      if (trailPoints.length > 1) {
+        // Draw connecting constellation lines
+        for (let i = 0; i < trailPoints.length - 1; i++) {
+          const a = trailPoints[i], b = trailPoints[i+1];
+          const dist = Math.hypot(b.x - a.x, b.y - a.y);
+          if (dist < 120) {
+            const alpha = Math.min(a.life, b.life) * 0.3;
+            trailCtx.beginPath();
+            trailCtx.moveTo(a.x, a.y);
+            trailCtx.lineTo(b.x, b.y);
+            trailCtx.strokeStyle = `rgba(232,184,109,${alpha})`;
+            trailCtx.lineWidth = 0.5;
+            trailCtx.stroke();
+          }
+        }
+        // Draw dots
+        trailPoints.forEach(p => {
+          trailCtx.beginPath();
+          trailCtx.arc(p.x, p.y, 2 * p.life, 0, Math.PI * 2);
+          trailCtx.fillStyle = `rgba(232,184,109,${p.life * 0.8})`;
+          trailCtx.shadowBlur = 6;
+          trailCtx.shadowColor = '#e8b86d';
+          trailCtx.fill();
+          trailCtx.shadowBlur = 0;
+        });
+      }
+
+      if (trailPoints.length > 0) trailRaf = requestAnimationFrame(drawTrail);
+      else {
+        trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+        trailRaf = null;
+      }
+    }
+
+    document.addEventListener('mousemove', e => {
+      if (!trailActive) return;
+      trailPoints.push({ x: e.clientX, y: e.clientY, life: 1 });
+      if (trailPoints.length > 80) trailPoints.shift();
+      if (!trailRaf) trailRaf = requestAnimationFrame(drawTrail);
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Shift') {
+        trailActive = true;
+        trailCanvas.classList.add('active');
+      }
+    });
+    document.addEventListener('keyup', e => {
+      if (e.key === 'Shift') {
+        trailActive = false;
+        trailCanvas.classList.remove('active');
+        // Fade out gradually
+        setTimeout(() => { trailPoints = []; }, 1200);
       }
     });
   }
