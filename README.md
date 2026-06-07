@@ -4,7 +4,7 @@
 
 ## About
 
-Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. Built from scratch as a single-file static site — no frameworks, no build tools, no dependencies. 94KB total.
+Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. Built from scratch as a single-file static site — no frameworks, no build tools, no dependencies. 95KB total.
 
 ## Stack
 
@@ -16,7 +16,7 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 - Canvas API (particle system + cursor trail)
 - IntersectionObserver (scroll reveal)
 - CSS custom properties (light/dark theming)
-- Device Motion API (shake detection, iOS permission handled)
+- Device Motion API (shake detection, iOS 13+ permission handled)
 
 ---
 
@@ -25,10 +25,10 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 ### Design
 - Preloader with animated R mark and progress bar
 - Character-by-character hero name reveal (post-preloader)
-- Custom cursor with contextual labels and glow bloom
+- Custom cursor with contextual labels and glow bloom (desktop)
 - Scroll-driven gold progress bar (CSS-native + JS fallback for Safari)
 - Film grain overlay — oversized to prevent edge glitch
-- Ghost section numbers (01–04, clipped, hidden on mobile)
+- Ghost section numbers 01–04 (clipped to section, hidden on mobile)
 - Active nav highlight on scroll
 - Back to top button
 - Hamburger mobile menu with fullscreen overlay
@@ -41,7 +41,7 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 - Hero orb parallax (mouse-driven, desktop)
 - Magnetic contact buttons (desktop)
 - Slow-draw gold glow line on project card hover
-- 3D card flip on single click / tap (all 3 cards)
+- 3D card flip on single click / tap (all 3 cards, no tilt)
 
 ### Theme
 - Light / Dark mode toggle
@@ -51,7 +51,6 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 
 ### Responsive
 - 4 breakpoints: `480px` / `768px` / `1024px` / `1400px`
-- Terminal available on all devices (long-press on mobile)
 - Touch device optimisations — native cursor, shake detection
 - `prefers-reduced-motion` respected
 - `100svh` hero with iOS browser chrome fix
@@ -64,7 +63,6 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 |---|---|
 | Triple-click anywhere | All headings dissolve into gold dust, then reform |
 | Shake device (mobile) | Same dust dissolve effect |
-| Long-press (mobile) | Opens terminal |
 | Type `rushil` | Hero name crumbles and rebuilds |
 | Type `hireme` | Gold sparks fly to contact + toast + scroll |
 | Idle 25 seconds | Particles crumble in from all four edges |
@@ -76,6 +74,10 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 ```
 whoami · skills · projects · experience · contact · awards · hire rushil · clear · exit
 ```
+
+### Terminal — Mobile Notes
+- Terminal is desktop-only (backtick trigger)
+- On mobile: shake triggers dust dissolve, triple-tap triggers dust dissolve
 
 ---
 
