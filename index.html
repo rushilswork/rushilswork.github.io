@@ -1783,14 +1783,14 @@
           <div class="featured-left">
             <div class="project-badge">Featured · AI Project</div>
             <div class="project-index">01</div>
-            <div class="project-title">jobBot: Automated Job Discovery Pipeline</div>
-            <p class="project-desc">A local-first AI-powered job discovery engine that searches 9 portals simultaneously, matches roles against your resume with natural language understanding, and tracks your entire application pipeline from discovery to offer.</p>
+            <div class="project-title">jobBot: AI-Powered Job Application Engine</div>
+            <p class="project-desc">Self-hosted job search automation. Scans 9 portals, auto-applies on 5, scores jobs against your profile, generates cover letters, and submits applications with AI-powered screening answers. No subscriptions, no third-party data -- everything runs on your machine.</p>
             <div class="project-stack" style="margin-top:24px;">
               <span class="stack-pill">FastAPI</span>
               <span class="stack-pill">SQLAlchemy</span>
               <span class="stack-pill">Playwright</span>
               <span class="stack-pill">React 18</span>
-              <span class="stack-pill">BeautifulSoup</span>
+              <span class="stack-pill">Groq / Gemini</span>
               <span class="stack-pill">JWT + bcrypt</span>
               <span class="stack-pill">SSE</span>
               <span class="stack-pill">SQLite</span>
@@ -1802,18 +1802,19 @@
           </div>
           <div class="featured-right">
             <ul class="featured-features">
-              <li><span>◆</span>Keyword discovery across LinkedIn, Naukri, Indeed, Monster, Glassdoor, Greenhouse, HiringCafe, Instahire, Uplers</li>
-              <li><span>◆</span>AI-powered natural language search over job listings</li>
-              <li><span>◆</span>Resume parsing &amp; skill matching engine</li>
-              <li><span>◆</span>Real-time SSE feed for live scrape updates</li>
-              <li><span>◆</span>Pipeline tracking: New → Reviewed → Applied → Skipped</li>
-              <li><span>◆</span>JWT auth with bcrypt, httpOnly cookies</li>
+              <li><span>◆</span>Auto-apply on 5 portals: LinkedIn, Naukri, Glassdoor, Greenhouse, Lever</li>
+              <li><span>◆</span>Discovery across 9 portals including Indeed, Monster, HiringCafe, Instahire</li>
+              <li><span>◆</span>AI match scoring (0-100), cover letter generation, skill gap analysis</li>
+              <li><span>◆</span>Smart screening answers, interview prep with STAR frameworks</li>
+              <li><span>◆</span>Resume parser: upload PDF/DOCX, AI fills your entire profile</li>
+              <li><span>◆</span>Natural language search, real-time SSE feed, multi-user JWT auth</li>
             </ul>
             <div class="featured-setup">
               <div class="featured-setup-label">Quick Start</div>
               <code>
-                <em>pip install -r requirements.txt</em><br/>
-                playwright install chromium<br/>
+                <em># Windows -- double-click setup.bat</em><br/>
+                <em># Mac/Linux:</em><br/>
+                bash scripts/setup.sh<br/>
                 python main.py dashboard<br/>
                 <em>→ localhost:8000</em>
               </code>
@@ -1822,7 +1823,7 @@
         </div>
         <div class="project-card-back">
           <div class="card-back-title">Behind the build</div>
-          <p class="card-back-body">jobBot started as a personal problem: job searching across 9 different portals manually was exhausting. Built a local-first pipeline that scrapes them all simultaneously, parses your resume, matches roles by skill relevance, and tracks your entire application lifecycle. AI-powered natural language search means you can query listings conversationally rather than by keyword. JWT auth and httpOnly cookies keep everything secure locally.</p>
+          <p class="card-back-body">jobBot started as a personal problem: applying to jobs across 9 portals was exhausting. Built a self-hosted engine that discovers jobs, auto-fills and submits applications on 5 portals, generates tailored cover letters from the actual JD, and scores every match against your resume. AI features run on free-tier Groq or Gemini -- no paid APIs needed. Screening questions get answered automatically, interview prep generates STAR-format questions, and natural language search lets you query your inbox conversationally. Everything local: SQLite, JWT auth, httpOnly cookies, zero telemetry.</p>
           <div class="card-back-hint">Click to flip back</div>
         </div>
       </div>
@@ -2511,7 +2512,7 @@
       '<span class="t-gold">Concepts:</span>    OOP, DSA, System Design, Multithreading, REST',
     ],
     projects: () => [
-      '<span class="t-gold">01 · jobBot</span>       AI-powered job discovery pipeline · 9 portals',
+      '<span class="t-gold">01 · jobBot</span>       AI-powered job application engine · 9 portals, auto-apply on 5',
       '<span class="t-gold">02 · HyAir</span>        Air pollution data visualization tool',
       '<span class="t-gold">03 · SpeedTest</span>    Global broadband speed test · Full stack',
       '',
