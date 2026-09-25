@@ -230,6 +230,15 @@
     background-size: 80px 80px;
   }
 
+  /* WebGL ambient gradient, sits behind the hero copy */
+  #hero-gl {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  @media (prefers-reduced-motion: reduce) { #hero-gl { display: none; } }
+
   .hero-eyebrow {
     font-family: var(--mono);
     font-size: 11px;
@@ -1142,6 +1151,14 @@
     #terminal-input { font-size: 16px; }
   }
 
+  /* ── VIEW TRANSITIONS (theme toggle) ── */
+  ::view-transition-old(root), ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  ::view-transition-new(root) { z-index: 1; }
+  ::view-transition-old(root) { z-index: 0; }
+
   /* ── CURSOR TRAIL ── */
   #trail-canvas {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -1429,6 +1446,7 @@
 <section id="hero">
   <div class="hero-bg-line"></div>
   <div class="grid-overlay"></div>
+  <canvas id="hero-gl" aria-hidden="true"></canvas>
 
   <div class="hero-eyebrow">Software Engineer · APAC · India</div>
   <h1 class="hero-name" id="hero-name">Rushil<br /><em>Pillamari</em></h1>
@@ -1775,12 +1793,9 @@
     let themeAnimating = false;
     toggleBtn.addEventListener('click', () => {
       if (themeAnimating) return;
-      themeAnimating = true;
       const current = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
       const next = current === 'dark' ? 'light' : 'dark';
-      const oldBg = current === 'light' ? '#f5f2ed' : '#0c0c0c';
 
-      // Circular reveal, expanding from the toggle button's position
       const rect = toggleBtn.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
       const y = rect.top + rect.height / 2;
@@ -1789,10 +1804,35 @@
         Math.max(y, window.innerHeight - y)
       );
 
-      // Apply the new theme immediately underneath the mask
-      root.setAttribute('data-theme', next);
-      try { localStorage.setItem('rp-theme', next); } catch(e) {}
-      updateThemeIcon(next);
+      const applyTheme = () => {
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('rp-theme', next); } catch(e) {}
+        updateThemeIcon(next);
+      };
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Prefer the native View Transitions API: it snapshots the real
+      // before/after pixels, so the circular mask reveals actual page
+      // content growing outward instead of a flat color wipe.
+      if (!reduceMotion && typeof document.startViewTransition === 'function') {
+        themeAnimating = true;
+        const transition = document.startViewTransition(applyTheme);
+        transition.ready.then(() => {
+          document.documentElement.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${maxRadius}px at ${x}px ${y}px)`] },
+            { duration: 700, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', pseudoElement: '::view-transition-new(root)' }
+          );
+        }).catch(() => {});
+        transition.finished.finally(() => { themeAnimating = false; });
+        return;
+      }
+
+      // Fallback for browsers without View Transitions: manual circular
+      // reveal, expanding from the toggle button's position.
+      themeAnimating = true;
+      const oldBg = current === 'light' ? '#f5f2ed' : '#0c0c0c';
+      applyTheme();
 
       const wipe = document.createElement('div');
       wipe.style.cssText = `
@@ -1803,8 +1843,6 @@
       `;
       document.body.appendChild(wipe);
 
-      // Shrink the old-theme mask down to nothing at the button, revealing
-      // the new theme growing outward from where it was clicked
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           wipe.style.clipPath = `circle(0px at ${x}px ${y}px)`;
@@ -1975,6 +2013,133 @@
       if (bg) bg.style.transform = `translate(${(e.clientX/window.innerWidth - 0.5) * 10}px, ${(e.clientY/window.innerHeight - 0.5) * 10}px)`;
     });
   }
+
+  /* ── HERO WEBGL AMBIENT GRADIENT ── */
+  (function initHeroGL() {
+    const canvas = document.getElementById('hero-gl');
+    const heroSection = document.getElementById('hero');
+    if (!canvas || !heroSection) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) return; // no WebGL support — canvas stays transparent, hero looks fine without it
+
+    const vertSrc = `
+      attribute vec2 aPos;
+      varying vec2 vUv;
+      void main() {
+        vUv = aPos * 0.5 + 0.5;
+        gl_Position = vec4(aPos, 0.0, 1.0);
+      }
+    `;
+    const fragSrc = `
+      precision mediump float;
+      varying vec2 vUv;
+      uniform float uTime;
+      uniform vec2 uResolution;
+      uniform vec3 uColorA;
+      uniform vec3 uColorB;
+      uniform vec3 uColorC;
+      void main() {
+        vec2 uv = vUv;
+        uv.x *= uResolution.x / max(uResolution.y, 1.0);
+        float t = uTime * 0.06;
+        float n = sin(uv.x * 2.4 + t * 2.0)
+                + sin(uv.y * 3.1 - t * 1.4)
+                + sin((uv.x + uv.y) * 2.0 + t * 1.1);
+        n /= 3.0;
+        float m1 = smoothstep(-0.6, 0.9, n);
+        vec3 col = mix(uColorA, uColorB, m1 * 0.55);
+        float m2 = smoothstep(0.2, 1.0, sin(uv.x * 1.6 - t * 0.8) * 0.5 + 0.5);
+        col = mix(col, uColorC, m2 * 0.22);
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    function compile(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { gl.deleteShader(s); return null; }
+      return s;
+    }
+
+    const vs = compile(gl.VERTEX_SHADER, vertSrc);
+    const fs = compile(gl.FRAGMENT_SHADER, fragSrc);
+    if (!vs || !fs) return;
+
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+    gl.useProgram(program);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(program, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uTime       = gl.getUniformLocation(program, 'uTime');
+    const uResolution = gl.getUniformLocation(program, 'uResolution');
+    const uColorA     = gl.getUniformLocation(program, 'uColorA');
+    const uColorB     = gl.getUniformLocation(program, 'uColorB');
+    const uColorC     = gl.getUniformLocation(program, 'uColorC');
+
+    // Dark/light palettes matching the site's CSS variables (--bg/--accent2/--accent)
+    const PALETTES = {
+      dark:  [[0.047, 0.047, 0.047], [0.910, 0.722, 0.427], [0.831, 0.773, 0.663]],
+      light: [[0.961, 0.949, 0.929], [0.722, 0.510, 0.165], [0.894, 0.875, 0.839]]
+    };
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width  = Math.max(1, Math.round(rect.width * dpr));
+      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let heroVisible = true;
+    let tabVisible = !document.hidden;
+    let rafId = null;
+    const start = performance.now();
+
+    function shouldRun() { return heroVisible && tabVisible; }
+
+    function loop(now) {
+      rafId = null;
+      if (!shouldRun()) return;
+      const theme = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      const [a, b, c] = PALETTES[theme];
+      gl.uniform1f(uTime, (now - start) / 1000);
+      gl.uniform2f(uResolution, canvas.width, canvas.height);
+      gl.uniform3f(uColorA, a[0], a[1], a[2]);
+      gl.uniform3f(uColorB, b[0], b[1], b[2]);
+      gl.uniform3f(uColorC, c[0], c[1], c[2]);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      rafId = requestAnimationFrame(loop);
+    }
+    function ensureRunning() {
+      if (rafId === null && shouldRun()) rafId = requestAnimationFrame(loop);
+    }
+    ensureRunning();
+
+    // Pause when the hero scrolls out of view or the tab is hidden
+    new IntersectionObserver(([entry]) => {
+      heroVisible = entry.isIntersecting;
+      ensureRunning();
+    }, { threshold: 0.05 }).observe(heroSection);
+
+    document.addEventListener('visibilitychange', () => {
+      tabVisible = !document.hidden;
+      ensureRunning();
+    });
+  })();
 
   /* ── SCROLL REVEAL ── */
   const revealObs = new IntersectionObserver(entries => {
