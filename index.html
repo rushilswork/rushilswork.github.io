@@ -48,6 +48,14 @@
     transition-duration: 0.3s;
     transition-timing-function: ease;
   }
+  /* While the theme-toggle animation runs, kill every per-element color
+     transition above. Otherwise each element keeps fading its own colors
+     on its own 0.3s clock at the same time the circular reveal is
+     animating, so the View Transition snapshot freezes a half-faded frame
+     and the real colors "pop" in abruptly once the reveal finishes. */
+  body.theme-switching *:not(#theme-wipe) {
+    transition: none !important;
+  }
   /* Don't interfere with existing transform/opacity transitions */
   .reveal, .hero-name, .hero-eyebrow, .char, .hero-scroll,
   .marquee-track, .scroll-line,
@@ -1223,7 +1231,7 @@
     animation: none;
     mix-blend-mode: normal;
   }
-  ::view-transition-new(root) { z-index: 1; }
+  ::view-transition-new(root) { z-index: 1; will-change: clip-path; }
   ::view-transition-old(root) { z-index: 0; }
 
   /* ── CURSOR TRAIL ── */
@@ -2003,6 +2011,7 @@
       // content growing outward instead of a flat color wipe.
       if (!reduceMotion && typeof document.startViewTransition === 'function') {
         themeAnimating = true;
+        document.body.classList.add('theme-switching');
         const transition = document.startViewTransition(applyTheme);
         transition.ready.then(() => {
           document.documentElement.animate(
@@ -2010,17 +2019,22 @@
             { duration: 700, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', pseudoElement: '::view-transition-new(root)' }
           );
         }).catch(() => {});
-        transition.finished.finally(() => { themeAnimating = false; });
+        transition.finished.finally(() => {
+          themeAnimating = false;
+          document.body.classList.remove('theme-switching');
+        });
         return;
       }
 
       // Fallback for browsers without View Transitions: manual circular
       // reveal, expanding from the toggle button's position.
       themeAnimating = true;
+      document.body.classList.add('theme-switching');
       const oldBg = current === 'light' ? '#f5f2ed' : '#0c0c0c';
       applyTheme();
 
       const wipe = document.createElement('div');
+      wipe.id = 'theme-wipe';
       wipe.style.cssText = `
         position: fixed; inset: 0; z-index: 99993; pointer-events: none;
         background: ${oldBg};
@@ -2038,6 +2052,7 @@
       setTimeout(() => {
         wipe.remove();
         themeAnimating = false;
+        document.body.classList.remove('theme-switching');
       }, 1000);
     });
   }
