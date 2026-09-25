@@ -866,14 +866,20 @@
     background: transparent;
     cursor: none;
     flex-direction: column; align-items: center; justify-content: center; gap: 5px;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, box-shadow 0.4s, transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
   }
   #hamburger:hover { border-color: var(--accent2); }
+  #hamburger:active { transform: scale(0.86); }
+  #hamburger.open {
+    border-color: var(--accent2);
+    box-shadow: 0 0 18px 2px rgba(232,184,109,0.4);
+    transform: rotate(90deg);
+  }
   #hamburger span {
     display: block;
     width: 18px; height: 1px;
     background: var(--fg-dim);
-    transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
+    transition: all 0.45s cubic-bezier(0.34,1.56,0.64,1);
   }
   #hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); background: var(--accent2); }
   #hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
@@ -885,41 +891,45 @@
     position: fixed; inset: 0; z-index: 99;
     background: var(--bg);
     flex-direction: column; align-items: center; justify-content: center;
-    opacity: 0;
-    transition: opacity 0.4s ease;
+    overflow: hidden;
+    clip-path: circle(0% at var(--ox, 90%) var(--oy, 6%));
+    transition: clip-path 1s cubic-bezier(0.65, 0, 0.35, 1);
     pointer-events: none;
   }
-  #mobile-menu.open { opacity: 1; pointer-events: all; }
+  #mobile-menu::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--ox, 90%) var(--oy, 6%), rgba(232,184,109,0.16), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.8s ease 0.2s;
+    pointer-events: none;
+  }
+  #mobile-menu.open {
+    clip-path: circle(150% at var(--ox, 90%) var(--oy, 6%));
+    pointer-events: all;
+  }
+  #mobile-menu.open::before { opacity: 1; }
   .mobile-menu-links {
     display: flex; flex-direction: column; align-items: center; gap: 32px;
   }
   #mobile-menu a {
-    display: flex; align-items: center; gap: 14px;
+    display: block;
     font-family: var(--serif);
     font-size: clamp(32px, 8vw, 52px);
     font-weight: 700;
     color: var(--fg-dim);
     text-decoration: none;
-    transition: color 0.3s;
     letter-spacing: -0.01em;
     opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.5s cubic-bezier(0.23,1,0.32,1), color 0.3s, transform 0.5s cubic-bezier(0.23,1,0.32,1);
+    transform: translateY(56px) scale(0.92);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1), color 0.3s;
   }
-  .mobile-menu-links a:nth-child(1) { transition-delay: 0.05s; }
-  .mobile-menu-links a:nth-child(2) { transition-delay: 0.12s; }
-  .mobile-menu-links a:nth-child(3) { transition-delay: 0.19s; }
-  .mobile-menu-links a:nth-child(4) { transition-delay: 0.26s; }
-  #mobile-menu.open a { opacity: 1; transform: translateY(0); }
+  .mobile-menu-links a:nth-child(1) { transition-delay: 0.28s; }
+  .mobile-menu-links a:nth-child(2) { transition-delay: 0.36s; }
+  .mobile-menu-links a:nth-child(3) { transition-delay: 0.44s; }
+  .mobile-menu-links a:nth-child(4) { transition-delay: 0.52s; }
+  #mobile-menu.open a { opacity: 1; transform: translateY(0) scale(1); }
   #mobile-menu a:hover, #mobile-menu a.active { color: var(--fg); }
-  #mobile-menu a.active .mm-index { opacity: 1; }
-  .mm-index {
-    font-family: var(--mono);
-    font-size: 14px;
-    color: var(--accent2);
-    opacity: 0.55;
-    letter-spacing: 0.1em;
-  }
 
   /* ── RESPONSIVE: TABLET (≤1024px) ── */
   @media (max-width: 1024px) {
@@ -1347,10 +1357,10 @@
 <!-- MOBILE MENU -->
 <div id="mobile-menu">
   <div class="mobile-menu-links">
-    <a href="#about" onclick="closeMobileMenu()"><span class="mm-index">01</span>About</a>
-    <a href="#skills" onclick="closeMobileMenu()"><span class="mm-index">02</span>Skills</a>
-    <a href="#experience" onclick="closeMobileMenu()"><span class="mm-index">03</span>Work</a>
-    <a href="#contact" onclick="closeMobileMenu()"><span class="mm-index">04</span>Contact</a>
+    <a href="#about" onclick="closeMobileMenu()">About</a>
+    <a href="#skills" onclick="closeMobileMenu()">Skills</a>
+    <a href="#experience" onclick="closeMobileMenu()">Work</a>
+    <a href="#contact" onclick="closeMobileMenu()">Contact</a>
   </div>
 </div>
 
@@ -1747,6 +1757,9 @@
   if (hamburger && mobileMenu) {
     hamburger.addEventListener('click', () => {
       const opening = !mobileMenu.classList.contains('open');
+      const rect = hamburger.getBoundingClientRect();
+      mobileMenu.style.setProperty('--ox', (rect.left + rect.width / 2) + 'px');
+      mobileMenu.style.setProperty('--oy', (rect.top + rect.height / 2) + 'px');
       hamburger.classList.toggle('open');
       mobileMenu.classList.toggle('open');
       document.body.style.overflow = opening ? 'hidden' : '';
