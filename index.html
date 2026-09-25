@@ -1680,44 +1680,45 @@
     toggleBtn.addEventListener('click', () => {
       if (themeAnimating) return;
       themeAnimating = true;
-      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      const isDarkToLight = next === 'light';
+      const current = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      const oldBg = current === 'light' ? '#f5f2ed' : '#0c0c0c';
 
-      // Create wipe overlay — diagonal sweep from top-left to bottom-right
+      // Circular reveal, expanding from the toggle button's position
+      const rect = toggleBtn.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      const maxRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+
+      // Apply the new theme immediately underneath the mask
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('rp-theme', next); } catch(e) {}
+      updateThemeIcon(next);
+
       const wipe = document.createElement('div');
       wipe.style.cssText = `
         position: fixed; inset: 0; z-index: 99993; pointer-events: none;
-        background: ${isDarkToLight ? '#f5f2ed' : '#0c0c0c'};
-        clip-path: polygon(-5% -5%, -5% -5%, -5% 105%, -5% 105%);
-        transition: clip-path 1.1s cubic-bezier(0.76, 0, 0.24, 1);
+        background: ${oldBg};
+        clip-path: circle(${maxRadius}px at ${x}px ${y}px);
+        transition: clip-path 0.9s cubic-bezier(0.76, 0, 0.24, 1);
       `;
       document.body.appendChild(wipe);
 
-      // Phase 1 — sweep IN (covers whole screen)
+      // Shrink the old-theme mask down to nothing at the button, revealing
+      // the new theme growing outward from where it was clicked
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          wipe.style.clipPath = 'polygon(-5% -5%, 105% -5%, 105% 105%, -5% 105%)';
+          wipe.style.clipPath = `circle(0px at ${x}px ${y}px)`;
         });
       });
 
-      // Mid-point — switch theme while covered
-      setTimeout(() => {
-        root.setAttribute('data-theme', next);
-        try { localStorage.setItem('rp-theme', next); } catch(e) {}
-        updateThemeIcon(next);
-      }, 1080);
-
-      // Phase 2 — sweep OUT (reveals new theme)
-      setTimeout(() => {
-        wipe.style.transition = 'clip-path 1.1s cubic-bezier(0.76, 0, 0.24, 1)';
-        wipe.style.clipPath = 'polygon(105% -5%, 105% -5%, 105% 105%, 105% 105%)';
-      }, 1140);
-
-      // Clean up
       setTimeout(() => {
         wipe.remove();
         themeAnimating = false;
-      }, 2400);
+      }, 1000);
     });
   }
 
