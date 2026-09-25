@@ -63,7 +63,7 @@
   @media (pointer: coarse) {
     #cursor { display: none; }
     body, button, a { cursor: auto; }
-    #theme-toggle, #hamburger, #back-to-top { cursor: pointer; }
+    #theme-toggle, #sound-toggle, #hamburger, #back-to-top { cursor: pointer; }
   }
   #cursor-dot {
     width: 6px; height: 6px;
@@ -882,6 +882,21 @@
   #theme-toggle svg { width: 16px; height: 16px; stroke: var(--fg-dim); fill: none; stroke-width: 1.5; transition: stroke 0.3s; }
   #theme-toggle:hover svg { stroke: var(--accent2); }
 
+  /* ── SOUND TOGGLE ── */
+  #sound-toggle {
+    position: relative; z-index: 1;
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.3s, background 0.3s;
+    flex-shrink: 0;
+  }
+  #sound-toggle:hover { border-color: var(--accent2); background: var(--surface); }
+  #sound-toggle svg { width: 16px; height: 16px; stroke: var(--fg-dim); fill: none; stroke-width: 1.5; transition: stroke 0.3s; }
+  #sound-toggle:hover svg { stroke: var(--accent2); }
+
   /* ── HAMBURGER ── */
   #hamburger {
     display: none;
@@ -1496,6 +1511,10 @@
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div style="display:flex;align-items:center;gap:10px;position:relative;z-index:1;justify-content:flex-end;">
+    <button id="sound-toggle" aria-label="Toggle sound">
+      <svg id="icon-sound-on" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+      <svg id="icon-sound-off" viewBox="0 0 24 24" style="display:none"><path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+    </button>
     <button id="theme-toggle" aria-label="Toggle theme">
       <svg id="icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       <svg id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1746,6 +1765,106 @@
   const footerYear = $('footer-year');
   if (footerYear) footerYear.textContent = new Date().getFullYear();
 
+  /* ══════════════════════════════════════════
+     AMBIENT SOUND — synthesized piano/violin notes
+     (Web Audio oscillators, no audio files)
+     ══════════════════════════════════════════ */
+  let audioCtx = null;
+  let soundEnabled = true;
+  try { soundEnabled = localStorage.getItem('rp-sound') !== 'off'; } catch (e) {}
+
+  function ensureAudio() {
+    if (!soundEnabled) return null;
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch (e) { return null; }
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    return audioCtx;
+  }
+
+  const NOTE = { C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25 };
+
+  function playNote(freq, { duration = 0.8, gain = 0.04, delay = 0, type = 'triangle' } = {}) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const t0 = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const shimmer = ctx.createOscillator(); // slight detune — violin-like warmth
+    const g = ctx.createGain();
+    osc.type = type;
+    shimmer.type = 'sine';
+    osc.frequency.value = freq;
+    shimmer.frequency.value = freq * 1.004;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(gain, t0 + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+    osc.connect(g); shimmer.connect(g); g.connect(ctx.destination);
+    osc.start(t0); shimmer.start(t0);
+    osc.stop(t0 + duration + 0.05); shimmer.stop(t0 + duration + 0.05);
+  }
+
+  function playChord(freqs, opts) { freqs.forEach(f => playNote(f, opts)); }
+
+  const CLICK_SCALE = [NOTE.C4, NOTE.D4, NOTE.E4, NOTE.G4, NOTE.A4, NOTE.C5];
+  function playClickNote() {
+    playNote(CLICK_SCALE[Math.floor(Math.random() * CLICK_SCALE.length)], { duration: 0.45, gain: 0.03 });
+  }
+  function playOpenNote()  { playNote(NOTE.A4, { duration: 0.6,  gain: 0.035 }); }
+  function playCloseNote() { playNote(NOTE.D4, { duration: 0.45, gain: 0.03  }); }
+  function playThemeNote(toLight) {
+    toLight
+      ? playChord([NOTE.E4, NOTE.G4, NOTE.C5], { duration: 0.7, gain: 0.03 })
+      : playChord([NOTE.C4, NOTE.G4],          { duration: 0.9, gain: 0.035, type: 'sine' });
+  }
+  function playDustNote() {
+    playNote(CLICK_SCALE[Math.floor(Math.random() * CLICK_SCALE.length)], { duration: 1.4, gain: 0.03, type: 'sine' });
+  }
+  function playHireArpeggio() {
+    [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5, NOTE.E5].forEach((f, i) =>
+      playNote(f, { delay: i * 0.09, duration: 0.7, gain: 0.04 })
+    );
+  }
+
+  // Browsers block audio before a user gesture, so the "site unlocks" chime
+  // is armed here and actually fires on the visitor's first interaction.
+  let unlockChimePending = false;
+  function playUnlockChime() {
+    playNote(NOTE.C4, { delay: 0,    duration: 1.0, gain: 0.035 });
+    playNote(NOTE.E4, { delay: 0.12, duration: 1.0, gain: 0.035 });
+    playNote(NOTE.G4, { delay: 0.24, duration: 1.2, gain: 0.04  });
+  }
+  function armUnlockChime() {
+    const fire = () => { if (unlockChimePending) { unlockChimePending = false; playUnlockChime(); } };
+    window.addEventListener('pointerdown', fire, { once: true, passive: true });
+    window.addEventListener('keydown', fire, { once: true });
+  }
+
+  // Any button/link click gets a soft musical pluck, unless it already has
+  // a dedicated sound (theme toggle, hamburger, terminal, palette).
+  document.addEventListener('click', e => {
+    const el = e.target.closest('a.contact-link, .nav-links a, .nav-logo, #back-to-top, .mobile-menu-links a');
+    if (el) playClickNote();
+  });
+
+  const soundToggle  = $('sound-toggle');
+  const iconSoundOn  = $('icon-sound-on');
+  const iconSoundOff = $('icon-sound-off');
+  function updateSoundIcon() {
+    if (!iconSoundOn || !iconSoundOff) return;
+    iconSoundOn.style.display  = soundEnabled ? 'block' : 'none';
+    iconSoundOff.style.display = soundEnabled ? 'none'  : 'block';
+  }
+  updateSoundIcon();
+  if (soundToggle) {
+    soundToggle.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      try { localStorage.setItem('rp-sound', soundEnabled ? 'on' : 'off'); } catch (e) {}
+      updateSoundIcon();
+      if (soundEnabled) playClickNote();
+    });
+  }
+
   /* ── PRELOADER ── */
   const preloader = $('preloader');
   const fillEl    = $('preloader-fill');
@@ -1763,6 +1882,8 @@
       setTimeout(() => {
         if (preloader) preloader.classList.add('hidden');
         initHeroChars();
+        unlockChimePending = true;
+        armUnlockChime();
         setTimeout(showDiscoveryHint, 1200);
       }, 420);
     }, wait);
@@ -1859,6 +1980,7 @@
       if (themeAnimating) return;
       const current = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
       const next = current === 'dark' ? 'light' : 'dark';
+      playThemeNote(next === 'light');
 
       const rect = toggleBtn.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
@@ -1933,6 +2055,7 @@
       hamburger.classList.toggle('open');
       mobileMenu.classList.toggle('open');
       document.body.style.overflow = opening ? 'hidden' : '';
+      opening ? playOpenNote() : playCloseNote();
     });
   }
 
@@ -2055,6 +2178,7 @@
         { sel: '.contact-link',                text: 'Open'   },
         { sel: '.nav-logo',                    text: 'Home'   },
         { sel: '#theme-toggle',                text: 'Theme'  },
+        { sel: '#sound-toggle',                text: 'Sound'  },
         { sel: '.exp-item',                    text: 'Read'   },
       ].forEach(({ sel, text }) => {
         $$(sel).forEach(el => {
@@ -2175,6 +2299,7 @@
   function dustDissolve(el, onReform) {
     if (!el || el.dataset.dusting) return;
     el.dataset.dusting = '1';
+    playDustNote();
     const rect = el.getBoundingClientRect();
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
     const colors = isDark
@@ -2310,6 +2435,7 @@
 
   /* ── "HIRE ME" ── */
   function triggerHireMe() {
+    playHireArpeggio();
     const toast = document.createElement('div');
     toast.textContent = '✦  Let\'s talk';
     toast.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);
@@ -2470,6 +2596,7 @@
 
   function openTerminal() {
     if (!termOverlay) return;
+    playOpenNote();
     termOpen = true;
     _savedScrollY = window.scrollY;
     document.body.style.top = `-${_savedScrollY}px`;
@@ -2491,6 +2618,7 @@
   }
 
   function closeTerminal() {
+    playCloseNote();
     termOpen = false;
     document.body.classList.remove('terminal-open');
     document.body.style.top = '';
@@ -2573,6 +2701,7 @@
     { label: 'Go to Contact', hint: 'section', run: () => scrollToSection('contact') },
     { label: 'Back to top',   hint: 'section', run: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
     { label: 'Toggle theme',  hint: 'action',  run: () => { const tt = $('theme-toggle'); if (tt) tt.click(); } },
+    { label: 'Toggle sound',  hint: 'action',  run: () => { const st = $('sound-toggle'); if (st) st.click(); } },
     { label: 'Open terminal', hint: 'action',  run: () => openTerminal() },
     { label: 'Copy email',    hint: 'action',  run: () => copyEmail() },
     { label: 'Email Rushil',  hint: 'link',    run: () => { window.location.href = 'mailto:rushilswork@gmail.com'; } },
@@ -2595,13 +2724,14 @@
       row.className = 'cmdk-item' + (i === cmdkActiveIndex ? ' active' : '');
       row.innerHTML = `<span>${escapeHtml(item.label)}</span><span class="cmdk-item-hint">${escapeHtml(item.hint)}</span>`;
       row.addEventListener('mouseenter', () => { cmdkActiveIndex = i; cmdkRender(cmdkInput.value); });
-      row.addEventListener('click', () => { item.run(); closeCmdk(); });
+      row.addEventListener('click', () => { playClickNote(); item.run(); closeCmdk(); });
       cmdkList.appendChild(row);
     });
   }
 
   function openCmdk() {
     if (!cmdkOverlay) return;
+    playOpenNote();
     cmdkOpenState = true;
     cmdkActiveIndex = 0;
     document.body.classList.add('cmdk-open');
@@ -2612,6 +2742,7 @@
   }
 
   function closeCmdk() {
+    playCloseNote();
     cmdkOpenState = false;
     document.body.classList.remove('cmdk-open');
     if (cmdkOverlay) cmdkOverlay.classList.remove('open');
@@ -2624,7 +2755,7 @@
       const items = cmdkList._items || [];
       if (e.key === 'ArrowDown') { e.preventDefault(); cmdkActiveIndex = Math.min(cmdkActiveIndex + 1, items.length - 1); cmdkRender(cmdkInput.value); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); cmdkActiveIndex = Math.max(cmdkActiveIndex - 1, 0); cmdkRender(cmdkInput.value); }
-      else if (e.key === 'Enter') { e.preventDefault(); const item = items[cmdkActiveIndex]; if (item) { item.run(); closeCmdk(); } }
+      else if (e.key === 'Enter') { e.preventDefault(); const item = items[cmdkActiveIndex]; if (item) { playClickNote(); item.run(); closeCmdk(); } }
       else if (e.key === 'Escape') { closeCmdk(); }
     });
   }
