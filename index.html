@@ -2213,13 +2213,13 @@
     }, 2800);
   }
 
-  /* ── TRIPLE-CLICK ANYWHERE → ALL TITLES DISSOLVE ── */
+  /* ── 5x CLICK ANYWHERE → ALL TITLES DISSOLVE ── */
   let clickCount = 0, clickTimer;
   document.addEventListener('click', () => {
     clickCount++;
     clearTimeout(clickTimer);
-    clickTimer = setTimeout(() => { clickCount = 0; }, 600);
-    if (clickCount >= 3) { clickCount = 0; triggerKonami(); }
+    clickTimer = setTimeout(() => { clickCount = 0; }, 900);
+    if (clickCount >= 5) { clickCount = 0; triggerKonami(); }
   });
 
   /* ── SHAKE (mobile) → DUST DISSOLVE + iOS permission ── */

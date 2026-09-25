@@ -53,7 +53,7 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in APAC. Single-file 
 
 | Trigger | Effect |
 |---|---|
-| Triple-click anywhere | All headings dissolve into gold dust, reform |
+| Click anywhere 5x | All headings dissolve into gold dust, reform |
 | Type `rushil` | Hero name crumbles and rebuilds |
 | Type `hireme` | Gold sparks fly to contact + `✦ Let's talk` toast |
 | Idle 25 seconds | Particles crumble in from all four edges |
@@ -64,7 +64,7 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in APAC. Single-file 
 
 | Trigger | Effect |
 |---|---|
-| Triple-tap anywhere | All headings dissolve into gold dust, reform |
+| Tap anywhere 5x | All headings dissolve into gold dust, reform |
 | Shake device | Same dust dissolve effect |
 | Long-press 800ms | Full-screen terminal |
 | Idle 25 seconds | Particles crumble in from all four edges |
