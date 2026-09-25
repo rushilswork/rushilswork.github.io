@@ -2438,7 +2438,7 @@
       '<span class="t-gold">◆</span> AIR 1: National SIP Abacus (3,100 participants)',
     ],
     'hire rushil': () => {
-      setTimeout(() => triggerHireMe(), 400);
+      setTimeout(() => { closeTerminal(); triggerHireMe(); }, 600);
       return ['<span class="t-gold">Initiating contact sequence...</span>', 'Redirecting to contact section ✦'];
     },
     clear: () => { termOutput.innerHTML = ''; return []; },
