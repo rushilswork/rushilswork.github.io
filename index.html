@@ -2043,15 +2043,19 @@
       void main() {
         vec2 uv = vUv;
         uv.x *= uResolution.x / max(uResolution.y, 1.0);
-        float t = uTime * 0.06;
-        float n = sin(uv.x * 2.4 + t * 2.0)
-                + sin(uv.y * 3.1 - t * 1.4)
-                + sin((uv.x + uv.y) * 2.0 + t * 1.1);
-        n /= 3.0;
-        float m1 = smoothstep(-0.6, 0.9, n);
-        vec3 col = mix(uColorA, uColorB, m1 * 0.55);
-        float m2 = smoothstep(0.2, 1.0, sin(uv.x * 1.6 - t * 0.8) * 0.5 + 0.5);
-        col = mix(col, uColorC, m2 * 0.22);
+        float t = uTime * 0.045;
+
+        // Low-frequency, continuous sine blend — no hard cutoffs, so the
+        // color washes into each other rather than banding.
+        float n1 = sin(uv.x * 1.1 + t * 1.1);
+        float n2 = sin(uv.y * 1.4 - t * 0.8);
+        float n3 = sin((uv.x - uv.y) * 0.9 + t * 0.6);
+        float g  = (n1 + n2 + n3) / 3.0 * 0.5 + 0.5; // 0..1, smooth
+        vec3 col = mix(uColorA, uColorB, g);
+
+        float g2 = sin(uv.x * 0.7 - t * 0.5) * 0.5 + 0.5;
+        col = mix(col, uColorC, g2 * 0.3);
+
         gl_FragColor = vec4(col, 1.0);
       }
     `;
