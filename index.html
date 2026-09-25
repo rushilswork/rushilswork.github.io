@@ -1824,13 +1824,17 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-copy">© 2026 Rushil Pillamari · APAC</div>
+  <div class="footer-copy">© <span id="footer-year">2026</span> Rushil Pillamari · APAC</div>
 </footer>
 
 <script>
   /* ── SAFE ELEMENT GETTER ── */
   const $ = id => document.getElementById(id);
   const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+
+  /* ── FOOTER YEAR ── */
+  const footerYear = $('footer-year');
+  if (footerYear) footerYear.textContent = new Date().getFullYear();
 
   /* ── PRELOADER ── */
   const preloader = $('preloader');
