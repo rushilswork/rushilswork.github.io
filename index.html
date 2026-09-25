@@ -361,6 +361,8 @@
   }
 
   .section-title {
+    position: relative;
+    display: inline-block;
     font-family: var(--serif);
     font-size: clamp(36px, 5vw, 64px);
     font-weight: 700;
@@ -369,6 +371,17 @@
     color: var(--fg);
   }
   .section-title em { font-style: italic; color: var(--accent); }
+  .section-title::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -16px;
+    height: 3px; width: 100%;
+    background: linear-gradient(90deg, var(--accent2), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.35s;
+  }
+  .section-title.visible::after { transform: scaleX(1); }
 
   /* ── ABOUT ── */
   #about, #skills, #experience { position: relative; overflow: hidden; }
@@ -1175,6 +1188,23 @@
     from { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,184,109,0); }
     to   { transform: scale(1.05); box-shadow: 0 0 20px 4px rgba(232,184,109,0.15); }
   }
+  .preloader-log {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--fg-dim);
+    height: 16px;
+    min-width: 220px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .preloader-log::after {
+    content: '▍';
+    margin-left: 2px;
+    color: var(--accent2);
+    animation: preloader-caret 0.9s steps(1) infinite;
+  }
+  @keyframes preloader-caret { 50% { opacity: 0; } }
 
   /* ── SCROLL PROGRESS ── */
   #scroll-progress {
@@ -1344,6 +1374,7 @@
 <div id="preloader">
   <div class="preloader-mark"><span>R</span></div>
   <div class="preloader-bar"><div class="preloader-bar-fill" id="preloader-fill"></div></div>
+  <div class="preloader-log" id="preloader-log"></div>
 </div>
 
 <!-- SCROLL PROGRESS -->
@@ -1637,16 +1668,22 @@
   /* ── PRELOADER ── */
   const preloader = $('preloader');
   const fillEl    = $('preloader-fill');
+  const logEl     = $('preloader-log');
   let preloaderDone = false;
+  const preloaderStart = performance.now();
+  const MIN_PRELOADER_MS = 1700; // let the boot log finish before hiding
 
   function hidePreloader() {
     if (preloaderDone) return;
     preloaderDone = true;
-    if (fillEl) fillEl.style.width = '100%';
+    const wait = Math.max(0, MIN_PRELOADER_MS - (performance.now() - preloaderStart));
     setTimeout(() => {
-      if (preloader) preloader.classList.add('hidden');
-      initHeroChars();
-    }, 420);
+      if (fillEl) fillEl.style.width = '100%';
+      setTimeout(() => {
+        if (preloader) preloader.classList.add('hidden');
+        initHeroChars();
+      }, 420);
+    }, wait);
   }
 
   // Fake progress fill
@@ -1656,6 +1693,30 @@
     if (prog >= 90) { clearInterval(fillTick); }
     if (fillEl) fillEl.style.width = Math.min(prog, 90) + '%';
   }, 80);
+
+  // Typewriter boot log
+  (function typeBootLog() {
+    if (!logEl) return;
+    const lines = [
+      'booting portfolio...',
+      'loading experience...',
+      'optimizing performance — 300x',
+      'ready.'
+    ];
+    let li = 0, ci = 0;
+    (function typeChar() {
+      if (li >= lines.length) return;
+      const line = lines[li];
+      logEl.textContent = line.slice(0, ci + 1);
+      ci++;
+      if (ci <= line.length) {
+        setTimeout(typeChar, 16 + Math.random() * 10);
+      } else {
+        li++; ci = 0;
+        setTimeout(typeChar, 150);
+      }
+    })();
+  })();
 
   if (document.readyState === 'complete') {
     hidePreloader();
