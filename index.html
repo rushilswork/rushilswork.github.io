@@ -884,8 +884,7 @@
     display: none;
     position: fixed; inset: 0; z-index: 99;
     background: var(--bg);
-    flex-direction: column; align-items: center; justify-content: space-between;
-    padding: 120px 32px 48px;
+    flex-direction: column; align-items: center; justify-content: center;
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
@@ -895,7 +894,7 @@
     display: flex; flex-direction: column; align-items: center; gap: 32px;
   }
   #mobile-menu a {
-    display: flex; align-items: baseline; gap: 14px;
+    display: flex; align-items: center; gap: 14px;
     font-family: var(--serif);
     font-size: clamp(32px, 8vw, 52px);
     font-weight: 700;
@@ -921,23 +920,6 @@
     opacity: 0.55;
     letter-spacing: 0.1em;
   }
-  .mobile-menu-footer {
-    display: flex; flex-direction: column; align-items: center; gap: 16px;
-    opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.5s cubic-bezier(0.23,1,0.32,1) 0.32s, transform 0.5s cubic-bezier(0.23,1,0.32,1) 0.32s;
-  }
-  #mobile-menu.open .mobile-menu-footer { opacity: 1; transform: translateY(0); }
-  .mobile-menu-footer a {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    color: var(--fg-dim);
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  .mobile-menu-footer a:hover { color: var(--accent2); }
-  .mobile-menu-social { display: flex; gap: 24px; }
 
   /* ── RESPONSIVE: TABLET (≤1024px) ── */
   @media (max-width: 1024px) {
@@ -1369,13 +1351,6 @@
     <a href="#skills" onclick="closeMobileMenu()"><span class="mm-index">02</span>Skills</a>
     <a href="#experience" onclick="closeMobileMenu()"><span class="mm-index">03</span>Work</a>
     <a href="#contact" onclick="closeMobileMenu()"><span class="mm-index">04</span>Contact</a>
-  </div>
-  <div class="mobile-menu-footer">
-    <a href="mailto:rushilswork@gmail.com">rushilswork@gmail.com</a>
-    <div class="mobile-menu-social">
-      <a href="https://linkedin.com/in/rushilpillamari" target="_blank" rel="noopener">LinkedIn</a>
-      <a href="https://github.com/rushilswork" target="_blank" rel="noopener">GitHub</a>
-    </div>
   </div>
 </div>
 
