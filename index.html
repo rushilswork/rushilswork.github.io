@@ -67,20 +67,24 @@
   }
   #cursor-dot {
     width: 6px; height: 6px;
+    top: 0; left: 0;
     background: var(--accent2);
     border-radius: 50%;
     position: absolute;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s ease, width 0.3s, height 0.3s, background 0.3s, box-shadow 0.3s;
+    transform: translate3d(0, 0, 0) translate(-50%, -50%);
+    will-change: transform;
+    transition: width 0.3s, height 0.3s, background 0.3s, box-shadow 0.3s;
     box-shadow: 0 0 6px 2px rgba(232,184,109,0.4);
   }
   #cursor-ring {
     width: 36px; height: 36px;
+    top: 0; left: 0;
     border: 1px solid rgba(212,197,169,0.5);
     border-radius: 50%;
     position: absolute;
-    transform: translate(-50%, -50%);
-    transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), width 0.4s, height 0.4s, border-color 0.3s, box-shadow 0.3s;
+    transform: translate3d(0, 0, 0) translate(-50%, -50%);
+    will-change: transform;
+    transition: width 0.4s, height 0.4s, border-color 0.3s, box-shadow 0.3s;
     box-shadow: 0 0 10px 1px rgba(232,184,109,0.08);
   }
   body.hovered #cursor-ring {
@@ -821,6 +825,7 @@
     display: flex;
     width: max-content;
     animation: marquee 28s linear infinite;
+    will-change: transform;
   }
   .marquee-item {
     font-family: var(--mono);
@@ -1885,22 +1890,15 @@
   /* ── SCROLL PROGRESS BAR — CSS scroll timeline + JS fallback ── */
   const progressBar = $('scroll-progress');
   // Fallback for browsers without CSS scroll timeline support (Safari < 17)
-  if (progressBar && !CSS.supports('animation-timeline', 'scroll()')) {
+  const needsProgressFallback = progressBar && !CSS.supports('animation-timeline', 'scroll()');
+  if (needsProgressFallback) {
     progressBar.style.animation = 'none';
     progressBar.style.transform = 'scaleX(0)';
     progressBar.style.transition = 'transform 0.1s linear';
-    window.addEventListener('scroll', () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (max > 0) progressBar.style.transform = `scaleX(${window.scrollY / max})`;
-    }, { passive: true });
   }
 
   /* ── BACK TO TOP ── */
   const backToTop = $('back-to-top');
-  function updateBackToTop() {
-    if (!backToTop) return;
-    backToTop.classList.toggle('visible', window.scrollY > 600);
-  }
   if (backToTop) {
     backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
@@ -1908,22 +1906,37 @@
   /* ── ACTIVE NAV ── */
   const navSections = $$('section[id]');
   const navLinks    = $$('.nav-links a, .mobile-menu-links a');
-  function updateActiveNav() {
+
+  // Single rAF-batched scroll handler: coalesces however many 'scroll'
+  // events fire per frame into one layout read + one set of DOM writes,
+  // instead of two separate listeners each doing their own work per event.
+  let scrollTicking = false;
+  function onScrollFrame() {
+    scrollTicking = false;
+    const scrollY = window.scrollY;
+
+    if (backToTop) backToTop.classList.toggle('visible', scrollY > 600);
+
+    if (needsProgressFallback) {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (max > 0) progressBar.style.transform = `scaleX(${scrollY / max})`;
+    }
+
     let current = '';
     navSections.forEach(s => {
-      // Use getBoundingClientRect for inertia-safe position
-      const rect = s.getBoundingClientRect();
-      if (rect.top <= 140) current = s.id;
+      if (s.getBoundingClientRect().top <= 140) current = s.id;
     });
     navLinks.forEach(a => {
       a.classList.toggle('active', a.getAttribute('href') === '#' + current);
     });
   }
-
   window.addEventListener('scroll', () => {
-    updateBackToTop();
-    updateActiveNav();
+    if (!scrollTicking) {
+      scrollTicking = true;
+      requestAnimationFrame(onScrollFrame);
+    }
   }, { passive: true });
+  onScrollFrame();
 
   /* ── STAT COUNTER ── */
   function animateCounter(el, target, suffix, duration) {
@@ -1962,15 +1975,13 @@
   if (window.matchMedia('(pointer: fine)').matches && dot && ring) {
     document.addEventListener('mousemove', e => {
       mX = e.clientX; mY = e.clientY;
-      dot.style.left = mX + 'px';
-      dot.style.top  = mY + 'px';
+      dot.style.transform = `translate3d(${mX}px, ${mY}px, 0) translate(-50%, -50%)`;
     });
 
     (function ringTick() {
       rX += (mX - rX) * 0.1;
       rY += (mY - rY) * 0.1;
-      ring.style.left = rX + 'px';
-      ring.style.top  = rY + 'px';
+      ring.style.transform = `translate3d(${rX}px, ${rY}px, 0) translate(-50%, -50%)`;
       requestAnimationFrame(ringTick);
     })();
 
@@ -2008,10 +2019,14 @@
     });
 
     /* Hero parallax */
-    document.addEventListener('mousemove', e => {
-      const bg = document.querySelector('.hero-bg-line');
-      if (bg) bg.style.transform = `translate(${(e.clientX/window.innerWidth - 0.5) * 10}px, ${(e.clientY/window.innerHeight - 0.5) * 10}px)`;
-    });
+    const heroBgLine = document.querySelector('.hero-bg-line');
+    if (heroBgLine) {
+      document.addEventListener('mousemove', e => {
+        const x = (e.clientX / window.innerWidth  - 0.5) * 10;
+        const y = (e.clientY / window.innerHeight - 0.5) * 10;
+        heroBgLine.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      });
+    }
   }
 
   /* ── HERO WEBGL AMBIENT GRADIENT ── */
@@ -2190,7 +2205,8 @@
       p.x += Math.sin(p.wobble) * 0.3;
       p.life -= p.decay;
       const r = Math.max(0.1, p.size * p.life);
-      ctx.save();
+      // No save()/restore() needed — every relevant property is set
+      // explicitly each iteration, so there's nothing to roll back.
       ctx.globalAlpha = Math.max(0, p.life * p.life);
       ctx.fillStyle = p.color;
       ctx.shadowBlur = 6;
@@ -2198,7 +2214,6 @@
       ctx.beginPath();
       ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
     }
     if (particles.length > 0) rafId = requestAnimationFrame(particleLoop);
     else { ctx.clearRect(0, 0, canvas.width, canvas.height); rafId = null; }
