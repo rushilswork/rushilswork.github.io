@@ -1741,10 +1741,10 @@
         <div class="exp-role">Software Engineer 1</div>
         <div class="exp-company">insightsoftware · APAC</div>
         <ul class="exp-bullets">
-          <li>Redesigned a slow data-cleanup process, cutting job completion time by 300x — from about 2 hours down to about 25 seconds.</li>
-          <li>Rebuilt how a core data connector managed memory, reducing usage by 98% — from 4–8 GB down to about 143 MB — removing a key stability issue that was putting revenue from a set of major customer accounts at risk.</li>
-          <li>Shipped a real-time progress indicator for long-running data exports, giving users immediate feedback and eliminating repeated manual clicks.</li>
-          <li>Re-engineered a customer-facing data script to close a major performance gap between two product versions, significantly cutting job run time; also delivered several connector enhancements and improved reliability and language support across exports.</li>
+          <li>Improved ETL job completion time by ~300x, optimizing the resource release phase in OLAP data jobs from ~2 hours to ~25 seconds via a bulk-clear strategy replacing O(N²) cleanup across 5 shared data structures.</li>
+          <li>Reduced OLAP driver memory consumption by 98%, bringing peak usage from 4–8 GB down to ~143 MB across x32 and x64 architectures.</li>
+          <li>Shipped a real-time export progress indicator for the web reporting tool across x32 and x64 builds, eliminating repeated clicks during long-running exports.</li>
+          <li>Optimized Infor OLAP v12 driver read performance by replacing per-cell XML/SOAP round-trips with a multi-cell read cache, closing the v11-to-v12 performance gap.</li>
         </ul>
       </div>
     </div>
@@ -2394,14 +2394,14 @@
   const COMMANDS = {
     help: () => [
       '<span class="t-gold">Available commands:</span>',
-      '  <span class="t-gold">whoami</span>       — about Rushil',
-      '  <span class="t-gold">skills</span>       — technical skills',
-      '  <span class="t-gold">experience</span>   — work history',
-      '  <span class="t-gold">contact</span>      — get in touch',
-      '  <span class="t-gold">awards</span>       — recognition',
-      '  <span class="t-gold">hire rushil</span>  — make it official',
-      '  <span class="t-gold">clear</span>        — clear terminal',
-      '  <span class="t-gold">exit</span>         — close terminal',
+      '  <span class="t-gold">whoami</span>       about Rushil',
+      '  <span class="t-gold">skills</span>       technical skills',
+      '  <span class="t-gold">experience</span>   work history',
+      '  <span class="t-gold">contact</span>      get in touch',
+      '  <span class="t-gold">awards</span>       recognition',
+      '  <span class="t-gold">hire rushil</span>  make it official',
+      '  <span class="t-gold">clear</span>        clear terminal',
+      '  <span class="t-gold">exit</span>         close terminal',
     ],
     whoami: () => [
       '<span class="t-gold">Rushil Pillamari</span>',
@@ -2432,10 +2432,10 @@
       '<span class="t-gold">Location:</span> APAC',
     ],
     awards: () => [
-      '<span class="t-gold">◆</span> ISW Kudos Award — Automated production-wide code signing',
-      '<span class="t-gold">◆</span> High Performance Recognition — 5+ times',
-      '<span class="t-gold">◆</span> Merit Scholarship — INR 1,00,000',
-      '<span class="t-gold">◆</span> AIR 1 — National SIP Abacus (3,100 participants)',
+      '<span class="t-gold">◆</span> ISW Kudos Award: Automated production-wide code signing',
+      '<span class="t-gold">◆</span> High Performance Recognition: 5+ times',
+      '<span class="t-gold">◆</span> Merit Scholarship: INR 1,00,000',
+      '<span class="t-gold">◆</span> AIR 1: National SIP Abacus (3,100 participants)',
     ],
     'hire rushil': () => {
       setTimeout(() => triggerHireMe(), 400);
