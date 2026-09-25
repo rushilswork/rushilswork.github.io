@@ -124,6 +124,13 @@
     display: flex; align-items: center; justify-content: center;
     position: relative;
     overflow: hidden;
+    animation: logoGlow 3s ease-in-out infinite;
+    transition: box-shadow 0.3s;
+  }
+  .nav-logo:hover .nav-logo-mark { box-shadow: 0 0 20px 4px rgba(232,184,109,0.65) !important; }
+  @keyframes logoGlow {
+    0%, 100% { box-shadow: 0 0 6px 1px rgba(232,184,109,0.25); }
+    50%      { box-shadow: 0 0 16px 3px rgba(232,184,109,0.55); }
   }
   .nav-logo-mark::before {
     content: '';
