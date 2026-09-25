@@ -1828,6 +1828,16 @@
   function playDustNote() {
     playNote(CLICK_SCALE[Math.floor(Math.random() * CLICK_SCALE.length)], { duration: 1.4, gain: 0.03, type: 'sine' });
   }
+
+  // Terminal keystrokes — each character maps to a fixed note so typing
+  // reads as a little melody rather than random noise.
+  const TYPE_SCALE = [NOTE.C4, NOTE.D4, NOTE.E4, NOTE.G4, NOTE.A4, NOTE.C5, NOTE.D5, NOTE.E5];
+  function playTypeNote(char) {
+    const code = char.toLowerCase().charCodeAt(0);
+    playNote(TYPE_SCALE[code % TYPE_SCALE.length], { duration: 0.2, gain: 0.02, type: 'triangle' });
+  }
+  function playBackspaceNote() { playNote(NOTE.D4, { duration: 0.12, gain: 0.018 }); }
+  function playEnterNote()     { playNote(NOTE.C4, { duration: 0.3,  gain: 0.03  }); }
   function playHireArpeggio() {
     [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5, NOTE.E5].forEach((f, i) =>
       playNote(f, { delay: i * 0.09, duration: 0.7, gain: 0.04 })
@@ -2671,11 +2681,17 @@
   if (termInput) {
     termInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
+        playEnterNote();
         const val = termInput.value;
         termInput.value = '';
         termRun(val);
+      } else if (e.key === 'Escape') {
+        closeTerminal();
+      } else if (e.key === 'Backspace') {
+        playBackspaceNote();
+      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        playTypeNote(e.key);
       }
-      if (e.key === 'Escape') closeTerminal();
     });
   }
 
