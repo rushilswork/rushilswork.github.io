@@ -1665,7 +1665,13 @@
     iconMoon.style.display = theme === 'light' ? 'none'  : 'block';
   }
 
-  const savedTheme = (() => { try { return localStorage.getItem('rp-theme') || 'dark'; } catch(e) { return 'dark'; } })();
+  // Default to time-of-day (6am–6pm = light, otherwise dark) unless the
+  // visitor has explicitly toggled a preference, which always wins.
+  function timeBasedTheme() {
+    const hour = new Date().getHours();
+    return (hour >= 6 && hour < 18) ? 'light' : 'dark';
+  }
+  const savedTheme = (() => { try { return localStorage.getItem('rp-theme') || timeBasedTheme(); } catch(e) { return timeBasedTheme(); } })();
   root.setAttribute('data-theme', savedTheme);
   updateThemeIcon(savedTheme);
 
