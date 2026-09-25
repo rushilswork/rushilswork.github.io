@@ -2294,6 +2294,9 @@
   let typedBuffer = '';
 
   document.addEventListener('keydown', e => {
+    // Ignore keystrokes typed into inputs (e.g. the terminal) to avoid
+    // false-triggering on substrings like "rushil" inside "hire rushil"
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     // Typed words
     if (e.key.length === 1) {
       typedBuffer = (typedBuffer + e.key.toLowerCase()).slice(-12);
@@ -2462,12 +2465,16 @@
     });
   }
 
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   function termRun(raw) {
     const cmd = raw.trim().toLowerCase();
     // Echo command
     const echo = document.createElement('div');
     echo.className = 't-line';
-    echo.innerHTML = `<span class="t-prompt">→ </span><span class="t-cmd">${raw}</span>`;
+    echo.innerHTML = `<span class="t-prompt">→ </span><span class="t-cmd">${escapeHtml(raw)}</span>`;
     termOutput.appendChild(echo);
 
     if (!cmd) return;
@@ -2475,7 +2482,7 @@
       const out = COMMANDS[cmd]();
       if (out && out.length) termPrint(out);
     } else {
-      termPrint([`<span class="t-err">command not found: ${raw}</span>`, 'Type <span class="t-gold">help</span> for available commands.']);
+      termPrint([`<span class="t-err">command not found: ${escapeHtml(raw)}</span>`, 'Type <span class="t-gold">help</span> for available commands.']);
     }
     termOutput.scrollTop = termOutput.scrollHeight;
   }
