@@ -1787,11 +1787,26 @@
       try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
       catch (e) { return null; }
     }
-    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    // On iOS/mobile Safari, resume() alone often leaves the audio *session*
+    // silently locked even once state reports "running" — the standard fix
+    // is to play a silent buffer through the context inside a real user
+    // gesture. Cheap enough to retry on every call until it's confirmed running.
+    if (audioCtx.state !== 'running') {
+      audioCtx.resume().catch(() => {});
+      try {
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start ? source.start(0) : source.noteOn(0);
+      } catch (e) {}
+    }
     return audioCtx;
   }
 
   const NOTE = { C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25 };
+
+  const MASTER_GAIN = 1.35; // small overall volume bump, applied uniformly
 
   function playNote(freq, { duration = 0.8, gain = 0.04, delay = 0, type = 'triangle' } = {}) {
     const ctx = ensureAudio();
@@ -1805,7 +1820,7 @@
     osc.frequency.value = freq;
     shimmer.frequency.value = freq * 1.004;
     g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(gain, t0 + 0.015);
+    g.gain.linearRampToValueAtTime(gain * MASTER_GAIN, t0 + 0.015);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
     osc.connect(g); shimmer.connect(g); g.connect(ctx.destination);
     osc.start(t0); shimmer.start(t0);
@@ -1853,9 +1868,13 @@
     playNote(NOTE.G4, { delay: 0.24, duration: 1.2, gain: 0.04  });
   }
   function armUnlockChime() {
-    const fire = () => { if (unlockChimePending) { unlockChimePending = false; playUnlockChime(); } };
-    window.addEventListener('pointerdown', fire, { once: true, passive: true });
-    window.addEventListener('keydown', fire, { once: true });
+    const fire = () => {
+      ensureAudio();
+      if (unlockChimePending) { unlockChimePending = false; playUnlockChime(); }
+    };
+    ['pointerdown', 'touchend', 'keydown'].forEach(evt =>
+      window.addEventListener(evt, fire, { once: true, passive: true })
+    );
   }
 
   // Any button/link click gets a soft musical pluck, unless it already has
