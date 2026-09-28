@@ -4,7 +4,7 @@
 
 ## About
 
-Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. Single-file static site — no frameworks, no build tools, no dependencies. 94KB.
+Portfolio of **Rushil Pillamari**, Software Engineer based in APAC. Single-file static site — no frameworks, no build tools, no dependencies. 85KB.
 
 ## Stack
 
@@ -26,7 +26,7 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 - Character-by-character hero name reveal
 - Scroll-driven gold progress bar
 - Film grain overlay
-- Ghost section numbers 01–04
+- Ghost section numbers 01–03
 - Active nav highlight on scroll
 - Back to top button
 - Light / Dark mode — cinematic diagonal wipe transition
@@ -39,8 +39,6 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 - Section label line draws in
 - Hero orb parallax on mouse (desktop)
 - Magnetic contact buttons (desktop)
-- Gold glow sweep on project card hover
-- 3D card flip on single click / tap
 
 ### Responsive
 - 4 breakpoints: `480px` / `768px` / `1024px` / `1400px`
@@ -55,27 +53,25 @@ Portfolio of **Rushil Pillamari**, Software Engineer based in Hyderabad, India. 
 
 | Trigger | Effect |
 |---|---|
-| Triple-click anywhere | All headings dissolve into gold dust, reform |
+| Click anywhere 5x | All headings dissolve into gold dust, reform |
 | Type `rushil` | Hero name crumbles and rebuilds |
 | Type `hireme` | Gold sparks fly to contact + `✦ Let's talk` toast |
 | Idle 25 seconds | Particles crumble in from all four edges |
 | Backtick `` ` `` | Full-screen terminal |
 | Hold `Shift` + move mouse | Gold constellation cursor trail |
-| Click any project card | 3D flip revealing "behind the build" |
 
 ### Mobile
 
 | Trigger | Effect |
 |---|---|
-| Triple-tap anywhere | All headings dissolve into gold dust, reform |
+| Tap anywhere 5x | All headings dissolve into gold dust, reform |
 | Shake device | Same dust dissolve effect |
 | Long-press 800ms | Full-screen terminal |
-| Tap any project card | 3D flip revealing "behind the build" |
 | Idle 25 seconds | Particles crumble in from all four edges |
 
 ### Terminal Commands
 ```
-whoami · skills · projects · experience · contact · awards · hire rushil · clear · exit
+whoami · skills · experience · contact · awards · hire rushil · clear · exit
 ```
 
 ---
@@ -88,9 +84,8 @@ whoami · skills · projects · experience · contact · awards · hire rushil �
 | 02 | About + Stats |
 | 03 | Skills |
 | 04 | Work Experience |
-| 05 | Projects — jobBot, Air Pollution Viz, Bandwidth Speed Test |
-| 06 | Awards & Recognition |
-| 07 | Contact |
+| 05 | Awards & Recognition |
+| 06 | Contact |
 
 ---
 
