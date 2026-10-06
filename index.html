@@ -595,6 +595,8 @@
   }
   .award-item:last-child { border-bottom: 1px solid var(--border); }
   .award-item:hover { background: transparent; }
+  a.award-item { text-decoration: none; color: inherit; }
+  #projects .awards-header { margin-bottom: 40px; }
   .award-icon {
     font-size: 10px;
     width: 32px; text-align: center;
@@ -1502,6 +1504,7 @@
     <a href="#about" onclick="closeMobileMenu()">About</a>
     <a href="#skills" onclick="closeMobileMenu()">Skills</a>
     <a href="#experience" onclick="closeMobileMenu()">Work</a>
+    <a href="#projects" onclick="closeMobileMenu()">Projects</a>
     <a href="#contact" onclick="closeMobileMenu()">Contact</a>
   </div>
 </div>
@@ -1516,6 +1519,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#experience">Work</a></li>
+    <li><a href="#projects">Projects</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div style="display:flex;align-items:center;gap:10px;position:relative;z-index:1;justify-content:flex-end;">
@@ -1714,6 +1718,26 @@
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="awards-header">
+    <div class="section-label reveal">Live Projects</div>
+    <h2 class="section-title reveal reveal-delay-1">Things I've<br /><em>Built</em></h2>
+  </div>
+  <div class="awards-list">
+    <a class="award-item reveal" href="https://rushilswork.github.io/HyAir-Data-Visualization-Tool/" target="_blank" rel="noopener">
+      <div class="award-icon">↗</div>
+      <div class="award-title">HyAir: live air quality map for Indian cities with AQI, forecasts and health guidance</div>
+      <div class="award-meta">JavaScript · Leaflet · Chart.js</div>
+    </a>
+    <a class="award-item reveal" href="https://speedpulse.onrender.com/" target="_blank" rel="noopener">
+      <div class="award-icon">↗</div>
+      <div class="award-title">SpeedPulse: browser speed test with latency, jitter and bufferbloat grading</div>
+      <div class="award-meta">Node · Express · SQLite</div>
+    </a>
   </div>
 </section>
 
